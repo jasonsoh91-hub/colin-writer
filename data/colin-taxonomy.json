@@ -1,0 +1,139 @@
+{
+  "genres": [
+    {
+      "id": "gastronomic-curiosity",
+      "name": "Gastronomic Curiosity",
+      "description": "Deep dives into unusual ingredients or the science of taste, blending factual curiosity with a touch of the macabre or the unexpected.",
+      "examples": ["5 Dangerous Foods", "Inside The Curious World Of Porcupine Meat", "How Capsaicin Works"],
+      "tone_id": "intellectual-curious",
+      "typical_length": "700-1000 words",
+      "structure": "Provocative hook → The 'What/Why' → Scientific or Cultural Breakdown → Warning/Verdict → Final Reflection",
+      "depth": "deep",
+      "prompt_instruction": "Balance a sense of adventure with precise factual details. Use evocative adjectives to describe textures and risks, framing the food as a 'curiosity' rather than just a meal."
+    },
+    {
+      "id": "chef-profile",
+      "name": "Chef Profile",
+      "description": "Character-driven portraits of culinary figures, focusing on their life trajectory and philosophical approach to cooking.",
+      "examples": ["Chef Adek: The Many Lives Of Datin Hamidah Abdul Hamid", "Unfiltered: A Candid Table With Chef Son Jong-Won And Chef Masashi Horiuchi"],
+      "tone_id": "intimate-respectful",
+      "typical_length": "800-1200 words",
+      "structure": "Atmospheric intro → Biographical arc → Professional philosophy → Dialogue/Quotes → Legacy",
+      "depth": "deep",
+      "prompt_instruction": "Focus on the 'human' side of the chef. Use a narrative arc that treats the chef's career as a series of 'lives' or chapters, emphasizing personal evolution over simple recipes."
+    },
+    {
+      "id": "lifestyle-guide",
+      "name": "Lifestyle & Home Guide",
+      "description": "Practical, accessible advice for the home cook or epicurean, often framed as 'simple' or 'affordable' hacks.",
+      "examples": ["5 Tequila Cocktails At Home", "The Best Grilled Cheese Guide", "Affordable Alternatives To Superfoods"],
+      "tone_id": "approachable-practical",
+      "typical_length": "500-700 words",
+      "structure": "Problem/Desire → The Solution/Guide → Step-by-step/List → Pro-Tip → Closing encouragement",
+      "depth": "light",
+      "prompt_instruction": "Keep it punchy and utilitarian. Frame the advice as a personal recommendation ('My Simple Guide') to establish trust and accessibility."
+    },
+    {
+      "id": "venue-spotlight",
+      "name": "Venue Spotlight",
+      "description": "Reviews or introductions of new dining establishments, blending the ambiance and the menu's unique selling points.",
+      "examples": ["Mesa On 51 Brings Elevated Spanish-Asian Fusion To KL’s Skyline", "Shuruti Box: The South Indian Fusion & Tamil Bar Redefining KL's Scene"],
+      "tone_id": "sophisticated-descriptive",
+      "typical_length": "600-800 words",
+      "structure": "The Vibe/Setting → The Concept → Signature Dishes → The 'Why it Matters' (Impact on scene) → Conclusion",
+      "depth": "moderate",
+      "prompt_instruction": "Use 'elevated' language to describe the setting. Focus on the fusion elements and how the venue 'redefines' or 'adds' to the existing city skyline/scene."
+    }
+  ],
+  "tones": [
+    {
+      "id": "intellectual-curious",
+      "name": "Intellectual & Curious",
+      "description": "An inquisitive tone that explores the 'why' behind the food, often blending science and culture.",
+      "markers": ["The truth behind", "The curious world of", "How [X] affects [Y]"]
+    },
+    {
+      "id": "intimate-respectful",
+      "name": "Intimate & Respectful",
+      "description": "A narrative tone used for interviews and profiles, treating subjects with dignity and focus on their life journey.",
+      "markers": ["The many lives of", "A candid table", "Inside the story of"]
+    },
+    {
+      "id": "approachable-practical",
+      "name": "Approachable & Practical",
+      "description": "Conversational and helpful, stripping away pretense to make luxury or complex cooking accessible.",
+      "markers": ["Beyond basic survival", "Easy [X] you can make at home", "Affordable alternatives"]
+    },
+    {
+      "id": "sophisticated-descriptive",
+      "name": "Sophisticated & Descriptive",
+      "description": "Polished and evocative, utilizing a high-end vocabulary to match the luxury of the venues described.",
+      "markers": ["Elevated fusion", "Redefining the scene", "Eating it up"]
+    }
+  ],
+  "style_options": {
+    "historical_depth": [
+      {"id":"none","label":"No history — get straight to the point"},
+      {"id":"light","label":"Light historical touch"},
+      {"id":"deep","label":"Deep cultural history — origin stories, class, colonial context"}
+    ],
+    "wit_level": [
+      {"id":"dry","label":"Dry & deadpan (his default)"},
+      {"id":"moderate","label":"Moderate — wit surfaces occasionally"},
+      {"id":"minimal","label":"Minimal — serious and informative"}
+    ],
+    "cultural_framing": [
+      {"id":"local","label":"Local Malaysia / KL focus"},
+      {"id":"regional","label":"Regional Asia context"},
+      {"id":"global","label":"Global cultural lens"}
+    ],
+    "pov": [
+      {"id":"first","label":"First person — I am here, I tried this"},
+      {"id":"observer","label":"Observer — watching from outside"},
+      {"id":"hybrid","label":"Hybrid — shifts between"}
+    ]
+  },
+  "opening_hook_types": [
+    {
+      "id": "the-paradox",
+      "label": "The Paradox",
+      "description": "Starting with a contradiction to grab attention.",
+      "example": "Five reasons why [Expensive Item A] is actually more expensive than [Expensive Item B]."
+    },
+    {
+      "id": "the-personal-confession",
+      "label": "The Personal Confession",
+      "description": "Using a first-person admission to build a bridge to the reader.",
+      "example": "3 Confessions of an incurable cafe romantic."
+    },
+    {
+      "id": "the-definitive-claim",
+      "label": "The Definitive Claim",
+      "description": "Establishing a strong, authoritative stance on a topic immediately.",
+      "example": "Ghee: Making everything taste better."
+    }
+  ],
+  "never_does": [
+    "Use overly aggressive clickbait adjectives like 'Shocking' or 'Unbelievable'",
+    "Write purely instructional recipes without a narrative or philosophical framing",
+    "Use generic corporate travel-brochure language"
+  ],
+  "always_does": [
+    "Frames food within a broader cultural or scientific context",
+    "Uses 'The [X] of [Y]' titling structures for profiles",
+    "Connects local Malaysian dining experiences to a wider regional or global standard"
+  ],
+  "signature_phrases": [
+    "The many lives of",
+    "Redefining the scene",
+    "Beyond basic survival",
+    "The truth behind",
+    "The curious world of"
+  ],
+  "article_type_prompts": {
+    "gastronomic-curiosity": "Write as a culinary explorer. Start with a high-stakes or high-interest hook about a specific ingredient. Blend technical explanations (like how capsaicin works) with vivid, sensory descriptions of the eating experience, maintaining a balance between academic curiosity and gourmet appreciation.",
+    "chef-profile": "Write a narrative biography. Instead of a resume of achievements, frame the chef's life as a series of transformations. Use 'candid' and 'unfiltered' language to make the reader feel they are sitting at the table with the chef, focusing on the intersection of their personal history and their culinary style.",
+    "lifestyle-guide": "Write as a knowledgeable friend who knows the shortcuts. Keep the tone encouraging and light. Focus on the 'hack' or the 'alternative'—how to get a high-end result with lower effort or cost, using direct, simple language and a structured list format.",
+    "venue-spotlight": "Write as a tastemaker. Focus on the synergy between the location (e.g., KL's skyline) and the cuisine. Use adjectives that suggest elevation and innovation, and explain exactly why this specific venue fills a gap in the current dining landscape."
+  }
+}

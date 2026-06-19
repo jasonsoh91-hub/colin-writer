@@ -30,8 +30,12 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files
 .env*
+
+# Colin Writer — private data (do not commit)
+data/feedback/
+data/articles/
 
 # vercel
 .vercel
