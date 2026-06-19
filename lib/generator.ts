@@ -5,10 +5,12 @@ import { loadStyleProfile } from './style-extractor';
 import { loadArticles } from './scraper';
 import { buildFeedbackPrompt } from './feedback';
 
-const client = new OpenAI({
-  baseURL: 'https://openrouter.ai/api/v1',
-  apiKey: process.env.OPENROUTER_API_KEY,
-});
+function getClient() {
+  return new OpenAI({
+    baseURL: 'https://openrouter.ai/api/v1',
+    apiKey: process.env.OPENROUTER_API_KEY,
+  });
+}
 
 export interface GenerateOptions {
   genre?: string;        // genre id e.g. "gastronomic-curiosity"
@@ -128,7 +130,7 @@ export async function generateArticle(topic: string, opts: GenerateOptions = {})
     customBlock,
   );
 
-  const stream = await client.chat.completions.create({
+  const stream = await getClient().chat.completions.create({
     model: 'google/gemma-4-31b-it:free',
     max_tokens: 2500,
     stream: true,

@@ -3,10 +3,12 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { loadArticles } from './scraper';
 
-const client = new OpenAI({
-  baseURL: 'https://openrouter.ai/api/v1',
-  apiKey: process.env.OPENROUTER_API_KEY,
-});
+function getClient() {
+  return new OpenAI({
+    baseURL: 'https://openrouter.ai/api/v1',
+    apiKey: process.env.OPENROUTER_API_KEY,
+  });
+}
 
 export async function extractStyleProfile(): Promise<string> {
   const articles = loadArticles();
@@ -17,7 +19,7 @@ export async function extractStyleProfile(): Promise<string> {
     .map(a => `### ${a.title}\n\n${a.full_text.slice(0, 1200)}`)
     .join('\n\n---\n\n');
 
-  const response = await client.chat.completions.create({
+  const response = await getClient().chat.completions.create({
     model: 'nvidia/nemotron-3-super-120b-a12b:free',
     max_tokens: 2000,
     messages: [
