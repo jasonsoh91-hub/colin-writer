@@ -101,6 +101,72 @@ function StyleBar({ label, value, max = 100 }: { label: string; value: number; m
   );
 }
 
+// ── Clone Progress Banner ─────────────────────────────────────────────────────
+
+function CloneProgress({ metrics }: { metrics: SimilarityReport }) {
+  const score = metrics.overallSimilarity;
+  const ratings = metrics.ratingTrend;
+  const lastRating = ratings[ratings.length - 1]?.rating ?? null;
+  const prevRating = ratings[ratings.length - 2]?.rating ?? null;
+  const ratingDelta = lastRating !== null && prevRating !== null ? lastRating - prevRating : null;
+
+  const phase =
+    metrics.totalReviews === 0 ? 'Text analysis only — submit a review to start the learning loop' :
+    score >= 85 ? 'Near clone — voice nearly identical' :
+    score >= 70 ? 'Getting close — style clearly developing' :
+    score >= 55 ? 'Learning — patterns emerging' :
+    'Early stage — more reviews needed';
+
+  const color = score >= 75 ? '#4ade80' : score >= 50 ? '#c8a84b' : '#f87171';
+
+  return (
+    <div className="bg-[#111] border border-[#1a1a1a] rounded-xl px-6 py-4 mb-5 flex items-center gap-8">
+      <div className="flex-shrink-0 text-center w-20">
+        <p className="text-[9px] text-[#444] uppercase tracking-widest mb-1">Clone Progress</p>
+        <span className="text-4xl font-bold leading-none" style={{ color }}>{score}%</span>
+      </div>
+
+      <div className="flex-1 min-w-0">
+        <div className="flex justify-between text-[10px] mb-1.5">
+          <span className="text-[#444]">{phase}</span>
+          {ratingDelta !== null && (
+            <span className={ratingDelta > 0 ? 'text-green-400' : ratingDelta < 0 ? 'text-red-400' : 'text-[#555]'}>
+              {ratingDelta > 0 ? '↑' : ratingDelta < 0 ? '↓' : '→'} {Math.abs(ratingDelta)} pts last review
+            </span>
+          )}
+        </div>
+        <div className="h-1.5 bg-[#1a1a1a] rounded-full overflow-hidden">
+          <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${score}%`, backgroundColor: color }} />
+        </div>
+        {ratings.length > 0 && (
+          <div className="flex gap-1.5 mt-2 items-center">
+            <span className="text-[9px] text-[#333] uppercase tracking-widest mr-1">Rounds</span>
+            {ratings.map((r, i) => (
+              <div key={i} title={`Round ${i + 1}: ${r.rating}/10 — ${r.label}`}
+                className="w-5 h-5 rounded flex items-center justify-center text-[9px] font-bold border"
+                style={{
+                  backgroundColor: r.rating >= 7 ? '#16653480' : r.rating >= 5 ? '#78350f80' : '#7f1d1d80',
+                  borderColor: r.rating >= 7 ? '#4ade8044' : r.rating >= 5 ? '#c8a84b44' : '#f8717144',
+                  color: r.rating >= 7 ? '#4ade80' : r.rating >= 5 ? '#c8a84b' : '#f87171',
+                }}>
+                {r.rating}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="flex-shrink-0 text-right space-y-1">
+        <p className="text-[10px] text-[#555]"><span className="text-white font-medium">{metrics.totalReviews}</span> review{metrics.totalReviews !== 1 ? 's' : ''} logged</p>
+        {metrics.avgRating > 0 && (
+          <p className="text-[10px] text-[#555]">Colin avg <span className="font-medium" style={{ color }}>{metrics.avgRating.toFixed(1)}/10</span></p>
+        )}
+        <p className="text-[10px] text-[#555]">text score <span className="text-white font-medium">{metrics.textStyleScore}%</span></p>
+      </div>
+    </div>
+  );
+}
+
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export default function Home() {
@@ -248,6 +314,9 @@ export default function Home() {
 
         {/* ── Main ── */}
         <main className="flex-1 min-w-0">
+
+          {/* Clone progress banner */}
+          {metrics && <CloneProgress metrics={metrics} />}
 
           {/* Tab bar (shown after article) */}
           {article && (
