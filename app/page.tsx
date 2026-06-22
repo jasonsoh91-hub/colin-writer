@@ -195,7 +195,17 @@ export default function Home() {
 
   useEffect(() => {
     fetch('/api/taxonomy').then(r => r.ok ? r.json() : null).then(d => d && setTaxonomy(d));
+    try {
+      const saved = localStorage.getItem('colin-history');
+      if (saved) setHistory(JSON.parse(saved));
+    } catch {}
   }, []);
+
+  useEffect(() => {
+    if (history.length > 0) {
+      try { localStorage.setItem('colin-history', JSON.stringify(history)); } catch {}
+    }
+  }, [history]);
 
   async function fetchMetrics(text: string) {
     setLoadingMetrics(true);
