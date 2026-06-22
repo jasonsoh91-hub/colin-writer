@@ -123,6 +123,7 @@ export default function Home() {
 
   const [metrics, setMetrics] = useState<SimilarityReport | null>(null);
   const [loadingMetrics, setLoadingMetrics] = useState(false);
+  const [feedbackRound, setFeedbackRound] = useState(0);
 
   const articleRef = useRef<string>('');
 
@@ -158,12 +159,23 @@ export default function Home() {
     finally { setGenerating(false); }
   }
 
-  async function handleSubmitReview() {
+  async function handleSubmitReview(regenerate = false) {
     if (submittingReview) return; setSubmittingReview(true);
     try {
       const res = await fetch('/api/feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ topic, article: articleRef.current, ...review }) });
       const data = await res.json();
-      if (data.success) { setReviewSubmitted(true); setShowReview(false); fetchMetrics(articleRef.current); }
+      if (data.success) {
+        setReviewSubmitted(true);
+        setShowReview(false);
+        setSubmittingReview(false);
+        if (regenerate) {
+          setFeedbackRound(r => r + 1);
+          setActiveTab('write');
+          handleGenerate();
+        } else {
+          fetchMetrics(articleRef.current);
+        }
+      }
     } catch (_) { /* silent */ }
     finally { setSubmittingReview(false); }
   }
@@ -336,10 +348,15 @@ export default function Home() {
                   <div className="flex items-center justify-between mb-5">
                     <div>
                       <p className="text-[10px] text-[#555] uppercase tracking-widest">Generated Article</p>
-                      <p className="text-[#888] text-sm mt-0.5">
+                      <p className="text-[#888] text-sm mt-0.5 flex items-center gap-2 flex-wrap">
                         {topic}
                         {options.genre && taxonomy && (
-                          <span className="ml-2 text-[#c8a84b] text-xs">· {taxonomy.genres.find(g => g.id === options.genre)?.name}</span>
+                          <span className="text-[#c8a84b] text-xs">· {taxonomy.genres.find(g => g.id === options.genre)?.name}</span>
+                        )}
+                        {feedbackRound > 0 && (
+                          <span className="text-[10px] px-2 py-0.5 rounded-full border border-[#c8a84b]/30 bg-[#c8a84b]/8 text-[#c8a84b]">
+                            {generating ? `Applying ${feedbackRound} review${feedbackRound > 1 ? 's' : ''}…` : `Feedback round ${feedbackRound}`}
+                          </span>
                         )}
                       </p>
                     </div>
@@ -404,10 +421,16 @@ export default function Home() {
                           className="w-full px-3 py-2 bg-[#0d0d0d] border border-[#222] rounded-lg text-sm text-white placeholder-[#333] focus:outline-none focus:border-[#c8a84b]/40 resize-none" />
                       </div>
                     ))}
-                    <button onClick={handleSubmitReview} disabled={submittingReview}
-                      className="w-full py-3 bg-[#c8a84b] text-[#0d0d0d] text-sm rounded-lg font-semibold hover:bg-[#d4b45a] disabled:opacity-40 transition-colors">
-                      {submittingReview ? 'Saving…' : 'Save Review — Train Next Article'}
-                    </button>
+                    <div className="space-y-2">
+                      <button onClick={() => handleSubmitReview(true)} disabled={submittingReview}
+                        className="w-full py-3 bg-[#c8a84b] text-[#0d0d0d] text-sm rounded-lg font-semibold hover:bg-[#d4b45a] disabled:opacity-40 transition-colors">
+                        {submittingReview ? 'Saving…' : 'Save & Regenerate →'}
+                      </button>
+                      <button onClick={() => handleSubmitReview(false)} disabled={submittingReview}
+                        className="w-full py-2 text-xs text-[#444] hover:text-[#888] transition-colors disabled:opacity-40">
+                        Save only — no regeneration
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
