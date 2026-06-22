@@ -116,9 +116,9 @@ function computeTextStyleScore(metrics: ArticleMetrics, colinAvgWordCount: numbe
   return Math.max(0, Math.min(100, score));
 }
 
-export function computeSimilarity(articleText: string): SimilarityReport {
+export async function computeSimilarity(articleText: string): Promise<SimilarityReport> {
   const articles = loadArticles();
-  const feedback = loadAllFeedback();
+  const feedback = await loadAllFeedback();
 
   // Compute Colin's baselines from real articles
   const colinMetrics = articles.map(a => analyzeText(a.full_text));

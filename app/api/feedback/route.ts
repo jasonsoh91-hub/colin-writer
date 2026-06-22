@@ -19,7 +19,11 @@ export async function POST(req: NextRequest) {
     phrases_to_use_more: body.phrases_to_use_more ?? '',
   };
 
-  saveFeedback(entry);
+  try {
+    await saveFeedback(entry);
+  } catch (err) {
+    return Response.json({ success: false, error: String(err) }, { status: 500 });
+  }
 
-  return Response.json({ success: true, id: entry.id, totalFeedback: entry.id });
+  return Response.json({ success: true, id: entry.id });
 }

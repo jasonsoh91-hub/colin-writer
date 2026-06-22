@@ -8,6 +8,6 @@ export async function POST(req: NextRequest) {
   if (!article?.trim()) {
     return Response.json({ error: 'No article provided' }, { status: 400 });
   }
-  const report = computeSimilarity(article);
+  const report = await computeSimilarity(article);
   return Response.json(report);
 }

@@ -115,7 +115,7 @@ ${customBlock ? customBlock + '\n\n' : ''}${feedbackPrompt ? feedbackPrompt + '\
 export async function generateArticle(topic: string, opts: GenerateOptions = {}): Promise<ReadableStream> {
   const styleProfile = loadStyleProfile();
   const articles = loadArticles();
-  const feedbackPrompt = buildFeedbackPrompt();
+  const feedbackPrompt = await buildFeedbackPrompt();
   const customBlock = buildCustomizationBlock(opts);
 
   const sampleExcerpts = articles
