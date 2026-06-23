@@ -14,9 +14,10 @@ export async function extractStyleProfile(): Promise<string> {
   const articles = loadArticles();
   if (articles.length === 0) throw new Error('No articles found. Run scraper first.');
 
-  // Use all articles, up to 2500 chars each
+  // Use up to 40 articles, 2000 chars each — stays under free tier token limit
   const corpus = articles
-    .map(a => `### ${a.title}\n\n${a.full_text.slice(0, 2500)}`)
+    .slice(0, 40)
+    .map(a => `### ${a.title}\n\n${a.full_text.slice(0, 2000)}`)
     .join('\n\n---\n\n');
 
   const response = await getClient().chat.completions.create({

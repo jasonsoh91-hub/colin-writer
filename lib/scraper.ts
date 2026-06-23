@@ -34,7 +34,7 @@ function slugify(title: string): string {
   return title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
-async function scrapePalateAsiaArticle(url: string): Promise<string> {
+export async function scrapePalateAsiaArticle(url: string): Promise<string> {
   const html = await fetchPage(url);
   const $ = cheerio.load(html);
 
@@ -169,8 +169,8 @@ export function saveArticles(articles: Article[]): void {
 }
 
 export function loadArticles(): Article[] {
-  // Prefer articles_v2 (full 22-article scrape), fall back to articles
-  const dirs = ['data/articles_v2', 'data/articles'].map(d => path.join(process.cwd(), d));
+  // Prefer articles_v3 (58-article scrape) → v2 → v1
+  const dirs = ['data/articles_v3', 'data/articles_v2', 'data/articles'].map(d => path.join(process.cwd(), d));
   const dir = dirs.find(d => fs.existsSync(d)) ?? dirs[1];
 
   return fs.readdirSync(dir)
