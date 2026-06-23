@@ -78,7 +78,7 @@
       {"id":"deep","label":"Deep cultural history — origin stories, class, colonial context"}
     ],
     "wit_level": [
-      {"id":"dry","label":"Dry & deadpan (his default)"},
+      {"id":"dry","label":"Dry & deadpan"},
       {"id":"moderate","label":"Moderate — wit surfaces occasionally"},
       {"id":"minimal","label":"Minimal — serious and informative"}
     ],
