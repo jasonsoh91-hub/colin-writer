@@ -190,6 +190,7 @@ export default function Home() {
   const [metrics, setMetrics] = useState<SimilarityReport | null>(null);
   const [loadingMetrics, setLoadingMetrics] = useState(false);
   const [feedbackRound, setFeedbackRound] = useState(0);
+  const [reviewError, setReviewError] = useState('');
 
   const articleRef = useRef<string>('');
 
@@ -236,7 +237,9 @@ export default function Home() {
   }
 
   async function handleSubmitReview(regenerate = false) {
-    if (submittingReview) return; setSubmittingReview(true);
+    if (submittingReview) return;
+    setSubmittingReview(true);
+    setReviewError('');
     try {
       const res = await fetch('/api/feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ topic, article: articleRef.current, ...review }) });
       const data = await res.json();
@@ -251,9 +254,14 @@ export default function Home() {
         } else {
           fetchMetrics(articleRef.current);
         }
+      } else {
+        setReviewError(data.error ?? 'Failed to save review. Check Supabase connection.');
       }
-    } catch (_) { /* silent */ }
-    finally { setSubmittingReview(false); }
+    } catch (err) {
+      setReviewError(`Network error: ${err}`);
+    } finally {
+      setSubmittingReview(false);
+    }
   }
 
   async function handleScrape() {
@@ -500,6 +508,9 @@ export default function Home() {
                           className="w-full px-3 py-2 bg-[#0d0d0d] border border-[#222] rounded-lg text-sm text-white placeholder-[#333] focus:outline-none focus:border-[#c8a84b]/40 resize-none" />
                       </div>
                     ))}
+                    {reviewError && (
+                      <div className="p-3 bg-red-900/20 border border-red-500/30 rounded-lg text-xs text-red-400">{reviewError}</div>
+                    )}
                     <div className="space-y-2">
                       <button onClick={() => handleSubmitReview(true)} disabled={submittingReview}
                         className="w-full py-3 bg-[#c8a84b] text-[#0d0d0d] text-sm rounded-lg font-semibold hover:bg-[#d4b45a] disabled:opacity-40 transition-colors">
