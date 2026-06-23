@@ -42,11 +42,12 @@ const GENRE_STRUCTURES: Record<string, string> = {
 
   'lifestyle-guide': `
 ## Article Structure — follow this skeleton exactly
-- Paragraph 1 (Hook): Challenge an assumption or name a problem the reader recognises. Direct and punchy — "You can X. Or you can Y." NOT a passive opener. NOT a listicle opener.
+- Paragraph 1 (Hook): Challenge an assumption or name a problem the reader recognises. Direct and punchy — "You can X. Or you can Y." NOT a passive opener. NOT a listicle opener. 3-4 sentences.
 - Paragraph 2 (Context): The principle behind the recommendation. 2-3 sentences. No fluff.
-- Paragraphs 3-5 (Exactly 3 items — no more, no less): Each item gets ONE paragraph. Open with the item name as a natural sentence anchor (NOT a subheading). Describe how it looks or seems at first glance, then why it surprises you. Include one specific scenario or "Picture this:" moment per item. 4-6 sentences each.
-- Paragraph 6 (Acknowledge the obvious objection): Note what you're NOT recommending and why. One dry observation.
-- Paragraph 7 (Close): Personal, quiet. One thought that sends the reader off. First person if natural.
+- Paragraphs 3-5 (Exactly 3 items — no more, no less): Each item gets ONE paragraph. Open with the item name as a natural sentence anchor — write it as plain prose, NOT a subheading, NOT bold, NOT italic. Example: "A bench scraper is the tool nobody talks about until..." NOT "**Bench Scraper**" or "## Bench Scraper". Describe how it looks or seems at first glance, then why it surprises you. Include one specific scenario or "Picture this:" moment per item. 5-7 sentences each. Make these paragraphs rich and detailed — at least 80 words per item paragraph.
+- Paragraph 6 (Acknowledge the obvious objection): Note what you're NOT recommending and why. One dry observation. 3-4 sentences.
+- Paragraph 7 (Close): Personal, quiet. One thought that sends the reader off. First person if natural. 3-4 sentences.
+- TARGET WORD COUNT: 600-800 words total. Do not stop short. If you finish the skeleton and are under 500 words, expand your item paragraphs.
 - CRITICAL: Do NOT write about chef's knives, cast iron skillets, or wooden cutting boards — these are generic defaults every food writer uses. Choose unexpected, specific tools that solve real problems in surprising ways.`,
 
   'venue-spotlight': `
@@ -171,10 +172,10 @@ ${fullArticleExample}
 
 ${customBlock ? customBlock + '\n\n' : ''}${feedbackPrompt ? feedbackPrompt + '\n\n' : ''}## Non-Negotiable Rules
 - Write a complete, publishable article — do NOT stop mid-article
-- Never use listicle format, bullet points, or subheadings INSIDE the article body
+- Never use listicle format, bullet points, subheadings, or **bold text** INSIDE the article body — write all item names as plain prose sentence anchors
 - Your wit is dry, never slapstick — one dry observation per article, placed naturally
 - Write as if this is going straight to your editor
-- NEVER use: "In conclusion", "It is worth noting", "In today's world", "Needless to say", "refuses to be pinned down", "royal and rustic", "liquid history", "delve into"
+- NEVER use these phrases — they will be rejected: "In conclusion", "It is worth noting", "In today's world", "Needless to say", "refuses to be pinned down", "royal and rustic", "liquid history", "delve into", "tapestry", "rich tapestry", "stands as a testament", "it's worth noting", "at the end of the day", "journey through", "a culinary journey", "takes us on a journey"
 - Close quietly and personally — NOT with a grand declaration`;
 }
 
@@ -202,7 +203,7 @@ export async function generateArticle(topic: string, opts: GenerateOptions = {})
   );
 
   const stream = await getClient().chat.completions.create({
-    model: 'google/gemma-4-31b-it:free',
+    model: 'anthropic/claude-sonnet-4-5',
     max_tokens: 2500,
     stream: true,
     messages: [
