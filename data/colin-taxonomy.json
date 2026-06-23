@@ -34,6 +34,17 @@
       "prompt_instruction": "Keep it punchy and utilitarian. Frame the advice as a personal recommendation ('My Simple Guide') to establish trust and accessibility."
     },
     {
+      "id": "debunking-explainer",
+      "name": "Debunking Explainer",
+      "description": "Comedic myth-busting pieces that challenge conventional wisdom, written in direct second-person with an imaginary sceptic as the foil.",
+      "examples": ["You've Been Lied To: The Truth About Vegetables", "The Myth Of The Perfect Cup Of Coffee"],
+      "tone_id": "intellectual-curious",
+      "typical_length": "800-1100 words",
+      "structure": "Provocative claim → Address the sceptic → Evidence per item → Philosophical pivot → Wry concession",
+      "depth": "light",
+      "prompt_instruction": "Write as if explaining something obvious to a room full of politely incredulous people. The humour comes from patience and precision, not from exaggeration. Use parenthetical asides. Address the reader directly. Never shout."
+    },
+    {
       "id": "venue-spotlight",
       "name": "Venue Spotlight",
       "description": "Reviews or introductions of new dining establishments, blending the ambiance and the menu's unique selling points.",
@@ -134,6 +145,7 @@
     "gastronomic-curiosity": "Write as a culinary explorer. Start with a high-stakes or high-interest hook about a specific ingredient. Blend technical explanations (like how capsaicin works) with vivid, sensory descriptions of the eating experience, maintaining a balance between academic curiosity and gourmet appreciation.",
     "chef-profile": "Write a narrative biography. Instead of a resume of achievements, frame the chef's life as a series of transformations. Use 'candid' and 'unfiltered' language to make the reader feel they are sitting at the table with the chef, focusing on the intersection of their personal history and their culinary style.",
     "lifestyle-guide": "Write as a knowledgeable friend who knows the shortcuts. Keep the tone encouraging and light. Focus on the 'hack' or the 'alternative'—how to get a high-end result with lower effort or cost, using direct, simple language and a structured list format.",
+    "debunking-explainer": "Write as someone who has done the research and is mildly exasperated that nobody else has. Use a conversational second-person voice throughout — 'you point to the carrots', 'you're probably looking at me like I've lost my mind'. Include at least two parenthetical asides for dry comedy. Build the argument item by item, then pivot to a broader philosophical observation about how humans construct shared fictions. End with wry acceptance, not outrage.",
     "venue-spotlight": "Write as a tastemaker. Focus on the synergy between the location (e.g., KL's skyline) and the cuisine. Use adjectives that suggest elevation and innovation, and explain exactly why this specific venue fills a gap in the current dining landscape."
   }
 }

@@ -57,6 +57,15 @@ const GENRE_STRUCTURES: Record<string, string> = {
 - Paragraphs 3-6 (The experience): Walk through what you eat, drink, or do. Name specific dishes. Describe textures and flavours precisely.
 - Paragraph 7 (The feel): Atmosphere, crowd, vibe. What kind of evening is this?
 - Paragraph 8 (Close): One honest, specific reason why you would — or would not — return.`,
+
+  'debunking-explainer': `
+## Article Structure — follow this skeleton exactly
+- Paragraph 1 (The Claim): Open with a blunt, provocative statement that declares the conventional wisdom is wrong. 2-3 sentences. Use "There, I said it." or equivalent. Do NOT hedge. Do NOT qualify. Colin's model: "Vegetables aren't real. There, I said it."
+- Paragraph 2 (The Imaginary Sceptic): Address the reader directly as a sceptic. Give them words to push back with. Then demolish the pushback immediately. Use second person throughout — "you", "you're", "you point to". Include one parenthetical joke. 4-5 sentences.
+- Paragraphs 3-6 (The Evidence — one item per paragraph): Cover 4 specific examples that prove the claim. For each: (1) name the item (carrot, broccoli, tomato, etc.), (2) state the surprising fact about what it actually is botanically/scientifically, (3) add one specific detail (a date, a name, a scientific term) that makes it feel researched, (4) end with a dry aside or snarky observation. 4-5 sentences each.
+- Paragraph 7 (The Pivot): After proving the claim, pivot to the philosophical point. Why does this matter? What does it say about the way we construct reality? Connect the food topic to something larger — language, money, countries, social contracts. 4-5 sentences.
+- Paragraph 8 (The Graceful Concession): Acknowledge that the lie is actually fine. We all agree to pretend. Close on a note of wry pragmatism rather than outrage. End quiet and dry — not grand. 3-4 sentences.
+- CRITICAL VOICE RULES: Write in second person throughout. Use parenthetical asides for jokes — (like this). Address the imaginary sceptic directly. Never be angry — be amused. The tone is "I can't believe I have to explain this" not "this is scandalous".`,
 };
 
 // Genre keywords to match a full article example from the corpus
@@ -65,6 +74,7 @@ const GENRE_ARTICLE_KEYWORDS: Record<string, string[]> = {
   'chef-profile': ['chef', 'terumi', 'adek', 'conversation', 'unfiltered', 'barista', 'bartender'],
   'lifestyle-guide': ['air-fryer', 'charcuterie', 'affordable', 'superfood', 'kitchen-tools', 'grilled-cheese', 'cooking-with-wine', 'ferment', 'sauce', 'pantry', 'brunch', 'waste'],
   'venue-spotlight': ['inside', 'bar', 'dotty', 'sushi', 'tanburi', 'auntie', 'stanley', 'kayra', 'campus'],
+  'debunking-explainer': ['lied', 'truth', 'vegetables', 'myth', 'construct', 'real', 'fake', 'actually', 'wrong', 'debunk'],
 };
 
 function getGenreMatchedArticle(articles: Article[], genre?: string, topic?: string): Article | null {
