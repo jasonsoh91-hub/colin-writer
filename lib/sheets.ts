@@ -9,11 +9,15 @@ export async function logFeedbackToSheets(entry: {
   const webhookUrl = process.env.GOOGLE_SHEETS_WEBHOOK;
   if (!webhookUrl) return;
   try {
-    await fetch(webhookUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(entry),
+    const params = new URLSearchParams({
+      topic: entry.topic,
+      rating: String(entry.rating),
+      what_worked: entry.what_worked,
+      what_to_improve: entry.what_to_improve,
+      phrases_to_avoid: entry.phrases_to_avoid,
+      phrases_to_use_more: entry.phrases_to_use_more,
     });
+    await fetch(`${webhookUrl}?${params.toString()}`, { method: 'GET', redirect: 'follow' });
   } catch (err) {
     console.error('Sheets log failed:', err);
   }
