@@ -14,33 +14,76 @@ export async function extractStyleProfile(): Promise<string> {
   const articles = loadArticles();
   if (articles.length === 0) throw new Error('No articles found. Run scraper first.');
 
+  // Use all articles, up to 2500 chars each
   const corpus = articles
-    .slice(0, 6)
-    .map(a => `### ${a.title}\n\n${a.full_text.slice(0, 1200)}`)
+    .map(a => `### ${a.title}\n\n${a.full_text.slice(0, 2500)}`)
     .join('\n\n---\n\n');
 
   const response = await getClient().chat.completions.create({
     model: 'nvidia/nemotron-3-super-120b-a12b:free',
-    max_tokens: 2000,
+    max_tokens: 3000,
     messages: [
       {
         role: 'user',
-        content: `You are a writing style analyst. Analyze the following articles all written by Colin Gomez and extract a detailed writing style profile that could be used to instruct an AI to write in his exact voice.
+        content: `You are a literary analyst specialising in food and lifestyle journalism. Analyse the following ${articles.length} articles all written by Colin Gomez, Features Editor at Palate Asia, and extract a HIGHLY DETAILED writing style guide that an AI could use to write indistinguishably from him.
 
-Focus on:
-1. Opening hook patterns (how does he start articles?)
-2. Sentence rhythm and length variety
-3. Structural pattern (how does each piece move?)
-4. Signature vocabulary and phrases
-5. Cultural/historical framing approach
-6. Tone and personality markers
-7. How he handles transitions
-8. How he closes articles
-9. What he NEVER does (listicles? clinical descriptions? etc.)
+Cover ALL of the following sections with concrete quoted examples from the text:
 
-Output a detailed style guide in markdown that an AI could follow to impersonate his writing voice precisely.
+## 1. OPENING PATTERNS
+- Exactly how does he start articles? (rhetorical question? paradox? contradiction? provocative statement?)
+- What is the structure of his first sentence?
+- What does he NEVER do in an opener? (never starts with "The history of..." or "In today's world...")
+- Quote 3 actual opening sentences from the articles
 
-ARTICLES:
+## 2. PARAGRAPH STRUCTURE
+- How does each paragraph open? (location signal? rhetorical pivot? "As we.../ Moving to.../ Speaking of...")
+- Average paragraph length: sentences and word count
+- How does he end paragraphs? (punchy one-liner? open question? scene close?)
+
+## 3. SENTENCE RHYTHM
+- Where does he use short punchy sentences vs long literary ones?
+- Quote 3 examples of his sentence rhythm (a long sentence followed by a short one)
+- What punctuation patterns does he favour?
+
+## 4. TRANSITIONS BETWEEN SECTIONS
+- How does he move from one region/idea to the next?
+- Exact transition phrases he uses repeatedly (quote them)
+
+## 5. VOCABULARY FINGERPRINTS
+- Signature phrases and expressions — quote the EXACT phrases (at least 15)
+- Words he reaches for repeatedly
+- What adjectives does he use? What adjectives does he NEVER use?
+- Words he avoids ("delve", "furthermore", "in conclusion", "it is worth noting")
+
+## 6. CULTURAL & HISTORICAL FRAMING
+- How deep does he go into history? Where does he stop?
+- Does he use academic language? Or does he keep it accessible?
+- How does he introduce cultural context without sounding like Wikipedia?
+
+## 7. WIT AND PERSONALITY
+- Where in the article does dry wit appear? (opening, middle, close?)
+- Quote 3 examples of his humour
+- What he NEVER does for humour (no puns, no slapstick, no exclamation marks)
+
+## 8. CLOSING PATTERNS
+- How does he end articles? (philosophical reflection? personal note? call to action?)
+- Does he use first person in the close?
+- Tone of final paragraph — quiet and understated or grand and declarative?
+- Quote 2 actual closing paragraphs
+
+## 9. STRUCTURAL PATTERNS BY ARTICLE TYPE
+- Gastronomic curiosity articles (exploring a dish/ingredient): what is the skeleton?
+- Profile/interview articles: how does he structure them?
+- Lifestyle/guide articles: how does he avoid listicle format?
+
+## 10. ABSOLUTE RULES — WHAT HE NEVER DOES
+- Format choices he always avoids
+- Phrases that would instantly break his voice
+- Structural traps (subheadings inside article body? bullet points? numbered lists?)
+
+Output as a detailed markdown style guide. Include direct quotes from the articles as evidence for every claim.
+
+ARTICLES (${articles.length} total):
 ${corpus}`,
       },
     ],
