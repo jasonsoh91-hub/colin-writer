@@ -170,11 +170,15 @@ export async function generateArticle(topic: string, opts: GenerateOptions = {})
   const feedbackPrompt = await buildFeedbackPrompt();
   const customBlock = buildCustomizationBlock(opts);
 
-  // Use one full genre-matched article instead of 3 truncated excerpts
-  const exampleArticle = getGenreMatchedArticle(articles, opts.genre);
+  // Use one full genre-matched article — cap at 3000 words to stay within context
+  const validArticles = articles.filter(a => {
+    const wc = a.full_text.split(/\s+/).length;
+    return wc > 200 && wc < 3000;
+  });
+  const exampleArticle = getGenreMatchedArticle(validArticles, opts.genre);
   const fullArticleExample = exampleArticle
     ? `**${exampleArticle.title}**\n\n${exampleArticle.full_text}`
-    : articles[0] ? `**${articles[0].title}**\n\n${articles[0].full_text}` : '';
+    : validArticles[0] ? `**${validArticles[0].title}**\n\n${validArticles[0].full_text}` : '';
 
   const systemPrompt = buildSystemPrompt(
     styleProfile || 'Write with literary curiosity, cultural depth, dry wit, and evocative prose.',

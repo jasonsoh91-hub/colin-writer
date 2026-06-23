@@ -35,6 +35,7 @@ function extractArticleLinks(html: string): { url: string; title: string }[] {
   const skip = new Set([
     'about-us', 'contact', 'home', 'hot-posts', 'feed', 'comments',
     'category', 'tag', 'author', 'page', 'advertise', 'privacy',
+    'wp-json', 'wp-content', 'wp-admin',
   ]);
 
   while ((m = hrefRegex.exec(html)) !== null) {
