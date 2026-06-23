@@ -42,10 +42,12 @@ const GENRE_STRUCTURES: Record<string, string> = {
 
   'lifestyle-guide': `
 ## Article Structure — follow this skeleton exactly
-- Paragraph 1 (Hook): Challenge an assumption or name a problem the reader recognises. NOT a listicle opener.
-- Paragraph 2 (Why it matters): Brief context. Why is this worth knowing? 2-3 sentences.
-- Paragraphs 3-7 (The substance): Prose-based practical content. NO bullet points. NO subheadings inside the body. NO numbered lists. Flow naturally from one idea to the next.
-- Paragraph 8 (Close): One dry or warm observation. Send the reader off with a thought, not a summary.`,
+- Paragraph 1 (Hook): Challenge an assumption or name a problem the reader recognises. Direct and punchy — "You can X. Or you can Y." NOT a passive opener. NOT a listicle opener.
+- Paragraph 2 (Context): The principle behind the recommendation. 2-3 sentences. No fluff.
+- Paragraphs 3-5 (Exactly 3 items — no more, no less): Each item gets ONE paragraph. Open with the item name as a natural sentence anchor (NOT a subheading). Describe how it looks or seems at first glance, then why it surprises you. Include one specific scenario or "Picture this:" moment per item. 4-6 sentences each.
+- Paragraph 6 (Acknowledge the obvious objection): Note what you're NOT recommending and why. One dry observation.
+- Paragraph 7 (Close): Personal, quiet. One thought that sends the reader off. First person if natural.
+- CRITICAL: Do NOT write about chef's knives, cast iron skillets, or wooden cutting boards — these are generic defaults every food writer uses. Choose unexpected, specific tools that solve real problems in surprising ways.`,
 
   'venue-spotlight': `
 ## Article Structure — follow this skeleton exactly
@@ -58,16 +60,28 @@ const GENRE_STRUCTURES: Record<string, string> = {
 
 // Genre keywords to match a full article example from the corpus
 const GENRE_ARTICLE_KEYWORDS: Record<string, string[]> = {
-  'gastronomic-curiosity': ['porcupine', 'kafana', 'bak-kut-teh', 'lihing', 'laksa', 'ghee', 'kaya', 'capsaicin', 'glass'],
-  'chef-profile': ['chef', 'terumi', 'adek', 'conversation'],
-  'lifestyle-guide': ['air-fryer', 'charcuterie', 'affordable', 'superfood'],
-  'venue-spotlight': ['inside', 'bar', 'hotel'],
+  'gastronomic-curiosity': ['porcupine', 'kafana', 'bak-kut-teh', 'lihing', 'laksa', 'ghee', 'kaya', 'capsaicin', 'glass', 'toddy', 'bunga', 'roselle', 'khachapuri', 'ochazuke', 'francesinha'],
+  'chef-profile': ['chef', 'terumi', 'adek', 'conversation', 'unfiltered', 'barista', 'bartender'],
+  'lifestyle-guide': ['air-fryer', 'charcuterie', 'affordable', 'superfood', 'kitchen-tools', 'grilled-cheese', 'cooking-with-wine', 'ferment', 'sauce', 'pantry', 'brunch', 'waste'],
+  'venue-spotlight': ['inside', 'bar', 'dotty', 'sushi', 'tanburi', 'auntie', 'stanley', 'kayra', 'campus'],
 };
 
-function getGenreMatchedArticle(articles: Article[], genre?: string): Article | null {
-  if (!genre || !GENRE_ARTICLE_KEYWORDS[genre]) return articles[0] ?? null;
-  const keywords = GENRE_ARTICLE_KEYWORDS[genre];
-  return articles.find(a => keywords.some(kw => a.slug.includes(kw))) ?? articles[0] ?? null;
+function getGenreMatchedArticle(articles: Article[], genre?: string, topic?: string): Article | null {
+  // First: try to match on topic words against article slugs (most specific)
+  if (topic) {
+    const topicWords = topic.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(w => w.length > 3);
+    const topicMatch = articles.find(a => topicWords.some(w => a.slug.includes(w) || a.title.toLowerCase().includes(w)));
+    if (topicMatch) return topicMatch;
+  }
+
+  // Second: match on genre keywords
+  if (genre && GENRE_ARTICLE_KEYWORDS[genre]) {
+    const keywords = GENRE_ARTICLE_KEYWORDS[genre];
+    const genreMatch = articles.find(a => keywords.some(kw => a.slug.includes(kw)));
+    if (genreMatch) return genreMatch;
+  }
+
+  return articles[0] ?? null;
 }
 
 function loadTaxonomy() {
@@ -175,7 +189,7 @@ export async function generateArticle(topic: string, opts: GenerateOptions = {})
     const wc = a.full_text.split(/\s+/).length;
     return wc > 200 && wc < 3000;
   });
-  const exampleArticle = getGenreMatchedArticle(validArticles, opts.genre);
+  const exampleArticle = getGenreMatchedArticle(validArticles, opts.genre, topic);
   const fullArticleExample = exampleArticle
     ? `**${exampleArticle.title}**\n\n${exampleArticle.full_text}`
     : validArticles[0] ? `**${validArticles[0].title}**\n\n${validArticles[0].full_text}` : '';
