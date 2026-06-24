@@ -47,13 +47,12 @@ const GENRE_STRUCTURES: Record<string, string> = {
 
   'lifestyle-guide': `
 ## Article Structure — follow this skeleton exactly
-- Paragraph 1 (Hook): Challenge an assumption or name a problem the reader recognises. Direct and punchy — "You can X. Or you can Y." NOT a passive opener. NOT a listicle opener. 3-4 sentences.
+- Paragraph 1 (Hook): Challenge an assumption or name a problem the reader recognises. Use a collective "we/us" confessional voice — "For a lot of us...", "We've spent years...", "Those of us who..." — NOT an adversarial "You can X. Or you can Y." opener. Warm and self-deprecating, not combative. 3-4 sentences.
 - Paragraph 2 (Context): The principle behind the recommendation. 2-3 sentences. No fluff.
-- Paragraphs 3-5 (Exactly 3 items — no more, no less): Each item gets ONE paragraph. Open with the item name as a natural sentence anchor — write it as plain prose, NOT a subheading, NOT bold, NOT italic. Example: "A bench scraper is the tool nobody talks about until..." NOT "**Bench Scraper**" or "## Bench Scraper". Describe how it looks or seems at first glance, then why it surprises you. Include one specific scenario or "Picture this:" moment per item. 5-7 sentences each. Make these paragraphs rich and detailed — at least 80 words per item paragraph.
-- Paragraph 6 (Acknowledge the obvious objection): Note what you're NOT recommending and why. One dry observation. 3-4 sentences.
-- Paragraph 7 (Close): Personal, quiet. One thought that sends the reader off. First person if natural. 3-4 sentences.
-- TARGET WORD COUNT: 600-800 words total. Do not stop short. If you finish the skeleton and are under 500 words, expand your item paragraphs.
-- CRITICAL: Do NOT write about chef's knives, cast iron skillets, or wooden cutting boards — these are generic defaults every food writer uses. Choose unexpected, specific tools that solve real problems in surprising ways.`,
+- Paragraphs 3-5 (Exactly 3 items — no more, no less): Each item gets ONE paragraph. Open with the item name as the first word or first phrase of the paragraph — this IS the signal for the item, written as a natural prose sentence anchor. Colin writes: "Tau fu fah is the dessert that..." or "Panna cotta is Italy's answer to..." — NOT a subheading, NOT bold, NOT italic. NEVER write "Picture this:" — instead, describe a specific scene or moment naturally within the prose: "Imagine sitting under a ceiling fan..." or simply place the reader there without flagging it. 5-7 sentences each. Rich and detailed — at least 80 words per item paragraph.
+- Paragraph 6 (Honest caveat): One candid, dry note on what you're NOT claiming. Short. Not preachy.
+- Paragraph 7 (Close): Collective "we/us" voice. Quiet. Send the reader off with a thought, not a summary. Do NOT explain your intentions ("I'm not recommending..."). End on the feeling, not the disclaimer.
+- TARGET WORD COUNT: 600-800 words total.`,
 
   'venue-spotlight': `
 ## Article Structure — follow this skeleton exactly
@@ -215,7 +214,7 @@ ${fullArticleExample}
 ${sourceBlock ? sourceBlock + '\n\n' : ''}${customBlock ? customBlock + '\n\n' : ''}${feedbackPrompt ? feedbackPrompt + '\n\n' : ''}## Non-Negotiable Rules
 - Write a complete, publishable article — do NOT stop mid-article
 - NEVER open with a physical scene of someone doing something (chef torching fish, hands folding rice, barista pouring coffee) — Colin does not do this
-- Never use listicle format, bullet points, subheadings, or **bold text** INSIDE the article body — write all item names as plain prose sentence anchors
+- Never use listicle format, bullet points, or numbered lists INSIDE the article body — exception: lifestyle-guide genre items MAY use a bold item name as a standalone line before the paragraph (e.g. **Tau Fu Fah** on its own line), as Colin does in published guides. All other genres: no bold, no subheadings.
 - Your wit is dry, never slapstick — one dry observation per article, placed naturally, often as a parenthetical aside (like this)
 - Address the reader as "you" at least twice — inviting them in, not telling them what to feel
 - Anchor the article in a specific Malaysian/KL location, reference, or cultural touchstone unless explicitly told to use a global lens
