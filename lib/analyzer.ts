@@ -40,6 +40,12 @@ const GENERIC_PHRASES = [
   'in summary', 'as mentioned', 'moving on', 'firstly',
   'secondly', 'thirdly', 'to sum up', 'in a nutshell',
   'at the end of the day', 'needless to say',
+  // AI jargon detected in Colin-style generation — permanently banned
+  'the truth is,', 'carefully considered', 'that\'s where things get interesting',
+  'suggest there might be', 'understand when to hold back',
+  'there might be a way back in', 'it may be time for a rethink',
+  'i\'m not claiming', 'i\'m not suggesting', 'this isn\'t about',
+  'let\'s take a look', 'here\'s what', 'proves x belongs',
 ];
 
 export interface ArticleMetrics {
