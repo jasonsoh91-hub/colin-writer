@@ -192,6 +192,9 @@ export default function Home() {
   const [feedbackRound, setFeedbackRound] = useState(0);
   const [reviewError, setReviewError] = useState('');
 
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+
   const articleRef = useRef<string>('');
 
   useEffect(() => {
@@ -274,6 +277,18 @@ export default function Home() {
     finally { setScraping(false); }
   }
 
+  async function handleSuggest() {
+    if (!topic.trim() || loadingSuggestions) return;
+    setLoadingSuggestions(true);
+    setSuggestions([]);
+    try {
+      const res = await fetch('/api/suggest', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ topic, genre: options.genre }) });
+      const data = await res.json();
+      if (data.suggestions) setSuggestions(data.suggestions);
+    } catch (_) { /* silent */ }
+    finally { setLoadingSuggestions(false); }
+  }
+
   function setOpt<K extends keyof GenerateOptions>(key: K, val: string) {
     setOptions(prev => ({ ...prev, [key]: prev[key] === val ? undefined : val }));
   }
@@ -352,18 +367,39 @@ export default function Home() {
           <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-6 mb-6">
             <label className="block text-[10px] font-medium text-[#555] uppercase tracking-widest mb-3">Topic</label>
             <div className="flex gap-3 mb-4">
-              <input type="text" value={topic} onChange={e => setTopic(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleGenerate()}
+              <input type="text" value={topic} onChange={e => { setTopic(e.target.value); setSuggestions([]); }} onKeyDown={e => e.key === 'Enter' && handleGenerate()}
                 placeholder="e.g. Durian, teh tarik, sourdough, kaya toast, capsaicin…"
                 className="flex-1 px-4 py-3 bg-[#0d0d0d] border border-[#222] rounded-lg text-sm text-white placeholder-[#333] focus:outline-none focus:border-[#c8a84b]/50 transition-colors" />
               <button onClick={() => setShowCustomize(v => !v)}
                 className={`px-4 py-3 rounded-lg border text-sm transition-colors ${showCustomize || activeOptionCount > 0 ? 'border-[#c8a84b]/50 text-[#c8a84b] bg-[#c8a84b]/5' : 'border-[#222] text-[#555] hover:border-[#333] hover:text-[#888]'}`}>
                 Style {activeOptionCount > 0 ? `(${activeOptionCount})` : '↓'}
               </button>
+              {topic.trim() && (
+                <button onClick={handleSuggest} disabled={loadingSuggestions}
+                  className="px-4 py-3 rounded-lg border border-[#222] text-sm text-[#555] hover:border-[#333] hover:text-[#888] disabled:opacity-40 transition-colors whitespace-nowrap">
+                  {loadingSuggestions ? 'Thinking…' : 'Suggest ✦'}
+                </button>
+              )}
               <button onClick={handleGenerate} disabled={generating || !topic.trim()}
                 className="px-6 py-3 bg-[#c8a84b] text-[#0d0d0d] text-sm rounded-lg font-semibold hover:bg-[#d4b45a] disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
                 {generating ? 'Writing…' : 'Generate'}
               </button>
             </div>
+
+            {/* Topic suggestions */}
+            {suggestions.length > 0 && (
+              <div className="mb-4">
+                <p className="text-[10px] font-medium text-[#555] uppercase tracking-widest mb-2">Similar topics — click to use</p>
+                <div className="flex flex-wrap gap-2">
+                  {suggestions.map((s, i) => (
+                    <button key={i} onClick={() => { setTopic(s); setSuggestions([]); }}
+                      className="px-3 py-2 rounded-lg border border-[#222] bg-[#0d0d0d] text-sm text-[#888] hover:border-[#c8a84b]/40 hover:text-white hover:bg-[#c8a84b]/5 transition-all text-left">
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Source notes — grounds AI in real facts, prevents hallucination */}
             <div className="mb-4">

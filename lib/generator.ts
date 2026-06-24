@@ -1,9 +1,8 @@
 import OpenAI from 'openai';
-import * as fs from 'fs';
-import * as path from 'path';
 import { loadStyleProfile } from './style-extractor';
 import { loadArticles, type Article } from './scraper';
 import { buildFeedbackPrompt } from './feedback';
+import { loadTaxonomy } from './taxonomy';
 
 function getClient() {
   return new OpenAI({
@@ -97,12 +96,6 @@ function getGenreMatchedArticle(articles: Article[], genre?: string, topic?: str
   }
 
   return articles[0] ?? null;
-}
-
-function loadTaxonomy() {
-  const p = path.join(process.cwd(), 'data/colin-taxonomy.json');
-  if (!fs.existsSync(p)) return null;
-  try { return JSON.parse(fs.readFileSync(p, 'utf-8')); } catch { return null; }
 }
 
 function buildCustomizationBlock(opts: GenerateOptions): string {
