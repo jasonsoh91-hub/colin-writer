@@ -32,6 +32,15 @@ const COLIN_PHRASES = [
   'hopefully not literally', 'and what do we', 'man in suspenders',
   'similarly questionable', 'slap a cover on this', 'call it a book',
   'not ask for attention', 'doesn\'t announce itself',
+
+  // Verified phrases from published articles — structure/voice markers
+  'gently persuasive', 'firmly in the background', 'great abundance of sugar',
+  'ephemeral delicateness', 'remarkably easy', 'fairly reliable indicator',
+  'supporting role', 'adds a nice acidity', 'stops things from becoming',
+  'forcefully demanding', 'takes a more', 'which feels like as good',
+  'as good an endorsement as any', 'doesn\'t need to be',
+  'precisely what makes', 'something for the sweetness to push against',
+  'develops in layers', 'arriving all at once',
 ];
 
 const GENERIC_PHRASES = [
@@ -98,7 +107,13 @@ function analyzeText(text: string): ArticleMetrics {
   const startsWithHook = firstSentence.length > 0 && !badOpeners.some(p => firstSentence.startsWith(p));
 
   const historicalWords = ['century', 'colonial', 'history', 'historical', 'tradition', 'origin', 'roots', 'founded', 'ancient', 'era'];
-  const culturalWords = ['culture', 'cultural', 'community', 'class', 'society', 'ritual', 'identity', 'heritage', 'folk', 'indigenous'];
+  // Expanded to include Malaysian food/place references Colin uses as cultural anchors
+  const culturalWords = [
+    'culture', 'cultural', 'community', 'class', 'society', 'ritual', 'identity', 'heritage', 'folk', 'indigenous',
+    'mamak', 'kopitiam', 'thosai', 'murtabak', 'briyani', 'kuih', 'kaya', 'tau fu fah', 'belacan', 'sambal',
+    'kl', 'kuala lumpur', 'bangsar', 'damansara', 'petaling jaya', 'malaysian', 'malaysia',
+    'peranakan', 'nyonya', 'hawker', 'uncle at the market',
+  ];
 
   const hasHistoricalRef = historicalWords.some(w => lower.includes(w));
   const hasCulturalRef = culturalWords.some(w => lower.includes(w));
