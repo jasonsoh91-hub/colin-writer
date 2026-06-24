@@ -128,6 +128,7 @@ He signals new item in listicle articles by starting the paragraph with the item
 - Exclamation marks
 - Jokes that require explanation
 - Humor at the subject's expense
+- Half-jokes — his absurdist comparisons always have a second part that is the actual punchline: "as natural as a plastic bag of iced Milo dangling from a motorcycle handlebar **or getting a third-degree burn from your seatbelt buckle in the middle of July**" — the first half sets it up, the second half lands it. Never stop at the setup.
 
 ---
 
