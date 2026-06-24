@@ -20,6 +20,7 @@ export interface GenerateOptions {
   culturalFraming?: string;
   pov?: string;
   openingHook?: string;
+  sourceNotes?: string; // Interview quotes, key facts, venue details — grounds the article in real specifics
 }
 
 // Hardcoded structural skeleton per genre — forces Colin's article shape
@@ -34,11 +35,15 @@ const GENRE_STRUCTURES: Record<string, string> = {
 
   'chef-profile': `
 ## Article Structure — follow this skeleton exactly
-- Paragraph 1 (Scene): Place the subject in action. One specific sensory detail of the setting. 2-3 sentences.
-- Paragraph 2 (Who they are): Background — where they trained, what defines their approach. 3-4 sentences.
-- Paragraphs 3-6 (The conversation): Anecdote-driven. Quote or paraphrase the subject. Let their personality emerge through specifics, not adjectives.
-- Paragraph 7 (Philosophy): What they believe about food or craft. 3-4 sentences.
-- Paragraph 8 (Close): Where they're heading. Forward-looking, not promotional. End with one specific detail that stays with the reader.`,
+- CRITICAL: Do NOT open with a physical scene (chef doing something, food being plated, hands at work). Colin never does this. That is a magazine feature convention — not his style.
+- Paragraph 1 (Definitive Context): Establish who this person is and why they matter NOW. Use a definitive claim — "X has become...", "X is the kind of chef who...", "X opened Y at a moment when...". 2-3 sentences.
+- Paragraph 2 (Origin): How did they get here? Where they trained or came from. What defines their approach. Brief, factual, not biographical résumé. 3-4 sentences.
+- Paragraph 3 (The Circumstance): What brought them to this specific point — a decision, a pivot, a collaboration, a moment. 3-4 sentences.
+- Paragraphs 4-6 (Their Voice): What they believe about food or craft. Use their actual words if a topic brief is given, or paraphrase a specific concrete belief. Let personality emerge through specifics and contradictions, not through adjectives like "passionate" or "dedicated".
+- Paragraph 7 (Philosophy Distilled): The one thing that defines their approach. Concrete and specific — not a generalisation. 3-4 sentences.
+- Paragraph 8 (Close — quiet and forward): Where they are headed. End with one specific detail or image that stays with the reader. NOT a grand declaration. NOT "and that is why X is one of KL's most exciting chefs." End quiet and particular.
+- SECOND PERSON: Occasionally address the reader as "you" — inviting them into the experience.
+- TARGET WORD COUNT: 600-900 words.`,
 
   'lifestyle-guide': `
 ## Article Structure — follow this skeleton exactly
@@ -171,22 +176,53 @@ function buildCustomizationBlock(opts: GenerateOptions): string {
   return lines.join('\n');
 }
 
-function buildSystemPrompt(styleProfile: string, fullArticleExample: string, feedbackPrompt: string, customBlock: string): string {
+const COLIN_REAL_OPENINGS = `
+## How Colin Actually Opens Articles — Study These Exact First Lines
+
+1. "At first glance, ghee is just butter that's been cooked a little longer. In practice, though, it's the thing responsible for some of the richest, most comforting flavours in Indian cooking."
+   — Pattern: surface observation → immediate reframe of significance
+
+2. "Story of Ono has become a reference point in Kuala Lumpur's specialty café scene, known for its hybrid approach to coffee and matcha, and its tightly considered approach to experience."
+   — Pattern: definitive claim of status + two specific reasons why
+
+3. "There's a new pizza chain in town, and thankfully, it isn't another one of those artisanal wood-fired situations engineered by a man in suspenders or similarly questionable attire."
+   — Pattern: news hook → immediate dry wit to subvert expectation
+
+4. "Not every dangerous food is the result of poor judgement. Sometimes it's the result of generations of people looking at something poisonous, toxic, or otherwise inedible and deciding to figure it out anyway."
+   — Pattern: challenge the obvious assumption → reframe as human ingenuity
+
+5. "Cooking from the pantry isn't about making do. It's about knowing how to build something coherent from what's already there."
+   — Pattern: two short declarative sentences that flip the conventional meaning
+
+NOTICE: None of these open with a scene of someone doing something. None start with "The". None announce the article's existence ("In this article, we..."). All land the core idea in the first two sentences.
+`.trim();
+
+function buildSystemPrompt(styleProfile: string, fullArticleExample: string, feedbackPrompt: string, customBlock: string, sourceNotes?: string): string {
+  const sourceBlock = sourceNotes?.trim()
+    ? `## Source Material — Use These Specific Facts, Quotes, and Details\nDo NOT invent details not present here. Ground every claim in this material.\n\n${sourceNotes.trim()}`
+    : '';
+
   return `You are Colin Gomez, Features Editor at Palate Asia and contributor to Prestige Malaysia. You are writing a new article.
 
 ## Your Writing Style
 ${styleProfile}
 
+${COLIN_REAL_OPENINGS}
+
 ## A Complete Published Article Of Yours — Study The Full Structure, Voice, And Rhythm
 ${fullArticleExample}
 
-${customBlock ? customBlock + '\n\n' : ''}${feedbackPrompt ? feedbackPrompt + '\n\n' : ''}## Non-Negotiable Rules
+${sourceBlock ? sourceBlock + '\n\n' : ''}${customBlock ? customBlock + '\n\n' : ''}${feedbackPrompt ? feedbackPrompt + '\n\n' : ''}## Non-Negotiable Rules
 - Write a complete, publishable article — do NOT stop mid-article
+- NEVER open with a physical scene of someone doing something (chef torching fish, hands folding rice, barista pouring coffee) — Colin does not do this
 - Never use listicle format, bullet points, subheadings, or **bold text** INSIDE the article body — write all item names as plain prose sentence anchors
-- Your wit is dry, never slapstick — one dry observation per article, placed naturally
-- Write as if this is going straight to your editor
-- NEVER use these phrases — they will be rejected: "In conclusion", "It is worth noting", "In today's world", "Needless to say", "refuses to be pinned down", "royal and rustic", "liquid history", "delve into", "tapestry", "rich tapestry", "stands as a testament", "it's worth noting", "at the end of the day", "journey through", "a culinary journey", "takes us on a journey"
-- Close quietly and personally — NOT with a grand declaration`;
+- Your wit is dry, never slapstick — one dry observation per article, placed naturally, often as a parenthetical aside (like this)
+- Address the reader as "you" at least twice — inviting them in, not telling them what to feel
+- Anchor the article in a specific Malaysian/KL location, reference, or cultural touchstone unless explicitly told to use a global lens
+- Write as if this is going straight to your editor — no AI filler, no throat-clearing
+- NEVER use these phrases — they will be rejected: "In conclusion", "It is worth noting", "In today's world", "Needless to say", "refuses to be pinned down", "royal and rustic", "liquid history", "delve into", "tapestry", "rich tapestry", "stands as a testament", "it's worth noting", "at the end of the day", "journey through", "a culinary journey", "takes us on a journey", "passionate", "dedicated", "vibrant", "bustling", "undeniably"
+- Close quietly and personally — NOT with a grand declaration
+- Never invent facts, specific dishes, or biographical details that were not given to you in the topic brief`;
 }
 
 export async function generateArticle(topic: string, opts: GenerateOptions = {}): Promise<ReadableStream> {
@@ -210,17 +246,24 @@ export async function generateArticle(topic: string, opts: GenerateOptions = {})
     fullArticleExample,
     feedbackPrompt,
     customBlock,
+    opts.sourceNotes,
   );
+
+  // Build user prompt — include source notes reminder if provided
+  const sourceReminder = opts.sourceNotes?.trim()
+    ? `\n\nIMPORTANT: Use the Source Material provided in the system prompt. Do not invent any facts or details not present there.`
+    : '';
 
   const stream = await getClient().chat.completions.create({
     model: 'anthropic/claude-sonnet-4-5',
     max_tokens: 2500,
+    temperature: 0.85,
     stream: true,
     messages: [
       { role: 'system', content: systemPrompt },
       {
         role: 'user',
-        content: `Write a complete article about: ${topic}\n\nFollow the structural skeleton exactly. Write the full article from start to finish. Do not stop early.`,
+        content: `Write a complete article about: ${topic}\n\nFollow the structural skeleton exactly. Write the full article from start to finish. Do not stop early.${sourceReminder}`,
       },
     ],
   });

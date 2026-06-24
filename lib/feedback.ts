@@ -56,36 +56,51 @@ export async function loadAllFeedback(): Promise<FeedbackEntry[]> {
 }
 
 export async function buildFeedbackPrompt(): Promise<string> {
-  let entries: FeedbackEntry[];
+  let allEntries: FeedbackEntry[];
   try {
-    entries = await loadAllFeedback();
+    allEntries = await loadAllFeedback();
   } catch {
     return '';
   }
-  if (entries.length === 0) return '';
+  if (allEntries.length === 0) return '';
 
-  const avgRating = (entries.reduce((s, e) => s + e.rating, 0) / entries.length).toFixed(1);
+  // Most recent 8 reviews only — older feedback becomes stale as voice improves
+  const entries = allEntries.slice(-8);
+  const recent = entries.slice(-3); // last 3 get highest weight in framing
+
+  const avgRating = (allEntries.reduce((s, e) => s + e.rating, 0) / allEntries.length).toFixed(1);
+  const recentAvg = (recent.reduce((s, e) => s + e.rating, 0) / recent.length).toFixed(1);
+
+  const trend = allEntries.length >= 2
+    ? allEntries[allEntries.length - 1].rating > allEntries[0].rating ? '↑ improving' : '→ flat'
+    : '';
 
   const worked = entries.filter(e => e.what_worked.trim()).map(e => `- ${e.what_worked.trim()}`).join('\n');
   const improve = entries.filter(e => e.what_to_improve.trim()).map(e => `- ${e.what_to_improve.trim()}`).join('\n');
   const avoidPhrases = entries.filter(e => e.phrases_to_avoid.trim()).map(e => `- ${e.phrases_to_avoid.trim()}`).join('\n');
   const usePhrases = entries.filter(e => e.phrases_to_use_more.trim()).map(e => `- ${e.phrases_to_use_more.trim()}`).join('\n');
 
+  // Surface the most recent critical feedback prominently
+  const lastImprove = recent.filter(e => e.what_to_improve.trim()).map(e => `- ${e.what_to_improve.trim()}`).join('\n');
+
   return `
-## Feedback Loop — Lessons From ${entries.length} Past Review(s) (avg score: ${avgRating}/10)
+## Feedback Loop — ${allEntries.length} Review(s) | avg ${avgRating}/10 | recent ${recentAvg}/10 ${trend}
+
+### MOST CRITICAL — Last 3 Reviews Said Fix This First
+${lastImprove || 'No critical flags yet.'}
 
 ### What Has Worked Well (keep doing this)
 ${worked || 'No data yet.'}
 
-### What To Improve (Colin flagged these)
+### What To Improve
 ${improve || 'No data yet.'}
 
-### Phrases / Patterns To AVOID
+### Phrases / Patterns To NEVER Use Again
 ${avoidPhrases || 'No data yet.'}
 
-### Phrases / Patterns To Use MORE
+### Moves To Use MORE
 ${usePhrases || 'No data yet.'}
 
-IMPORTANT: Study the above lessons carefully. Apply every correction. The goal is to make this article indistinguishable from Colin's actual published work.
+CRITICAL: Address every item in "MOST CRITICAL" first. These are Colin's highest-priority corrections. Apply every lesson above. Goal: indistinguishable from his actual byline.
 `.trim();
 }

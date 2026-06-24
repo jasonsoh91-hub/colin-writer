@@ -2,14 +2,36 @@ import { loadArticles } from './scraper';
 import { loadAllFeedback } from './feedback';
 
 // Colin's signature phrases detected in generated text
+// Sourced from actual published articles — palateasia.com
 const COLIN_PHRASES = [
-  'quietly making its way', 'coloured past', 'mildly alcoholic',
-  'escapes tidy translation', 'working-class', 'unpretentious',
-  'deeply satisfying', 'tip of the iceberg', 'all but',
-  'owing perhaps', 'in the gutter', 'all manner of',
-  'did we say', 'fair enough', 'sounds sensible',
-  'great lengths', 'pummel', 'audacity', 'resistance',
-  'slowly stepping', 'inner world', 'made physical',
+  // Transitions & pivots
+  'having said that', 'in practice, though', 'alright, so',
+  'and yet', 'of course,', 'as it turns out',
+  'it\'s this', 'comes down to',
+
+  // Rhetorical moves
+  'all manner of', 'did we say', 'fair enough',
+  'and what do we do', 'you\'ve probably', 'you\'ll find',
+
+  // Characteristic expressions
+  'tightly considered', 'on equal footing', 'in all actuality',
+  'nothing against', 'the thing responsible',
+  'in a way', 'for something that',
+  'this only serves to', 'asking for so little',
+
+  // Sensory / food voice
+  'clings', 'perfumes', 'whispers', 'enriches',
+  'frenzy', 'maniacally', 'hypnotised',
+  'stripped-back', 'understated',
+
+  // Cultural anchors
+  'mamak', 'thosai', 'murtabak', 'briyani',
+  'working-class', 'unpretentious',
+
+  // Wit markers
+  'hopefully not literally', 'and what do we', 'man in suspenders',
+  'similarly questionable', 'slap a cover on this', 'call it a book',
+  'not ask for attention', 'doesn\'t announce itself',
 ];
 
 const GENERIC_PHRASES = [
@@ -65,7 +87,9 @@ function analyzeText(text: string): ArticleMetrics {
   const genericPhrasesFound = GENERIC_PHRASES.filter(p => lower.includes(p.toLowerCase()));
 
   const firstSentence = sentences[0]?.toLowerCase() ?? '';
-  const startsWithHook = !firstSentence.startsWith('the ') && !firstSentence.startsWith('in ') && firstSentence.length > 0;
+  // Colin never opens with these patterns — flag them as non-hooks
+  const badOpeners = ['the ', 'in today', 'in this article', 'welcome to', 'when it comes to', 'if you\'re', 'have you ever'];
+  const startsWithHook = firstSentence.length > 0 && !badOpeners.some(p => firstSentence.startsWith(p));
 
   const historicalWords = ['century', 'colonial', 'history', 'historical', 'tradition', 'origin', 'roots', 'founded', 'ancient', 'era'];
   const culturalWords = ['culture', 'cultural', 'community', 'class', 'society', 'ritual', 'identity', 'heritage', 'folk', 'indigenous'];
@@ -90,9 +114,10 @@ function analyzeText(text: string): ArticleMetrics {
 function computeTextStyleScore(metrics: ArticleMetrics, colinAvgWordCount: number, colinAvgSentenceLength: number): number {
   let score = 50; // base
 
-  // Word count in his range (600-900)
-  if (metrics.wordCount >= 550 && metrics.wordCount <= 950) score += 10;
-  else if (metrics.wordCount >= 400 && metrics.wordCount <= 1100) score += 5;
+  // Word count: Colin's essays land 600-950 words
+  const wc = metrics.wordCount;
+  if (wc >= 600 && wc <= 950) score += 10;
+  else if (wc >= 450 && wc <= 1100) score += 5;
 
   // Sentence length close to Colin's avg (~18-22 words)
   const sentenceDiff = Math.abs(metrics.avgSentenceLength - colinAvgSentenceLength);
@@ -120,8 +145,16 @@ export async function computeSimilarity(articleText: string): Promise<Similarity
   const articles = loadArticles();
   const feedback = await loadAllFeedback();
 
-  // Compute Colin's baselines from real articles
-  const colinMetrics = articles.map(a => analyzeText(a.full_text));
+  // Compute Colin's baselines from essay-style articles only
+  // List articles (5-cocktails, 10-ways, etc.) inflate word counts significantly
+  const essayArticles = articles.filter(a => {
+    const slug = (a.slug ?? '').toLowerCase();
+    const isListArticle = /^colin-\d+-/.test(slug) || /\b(10-ways|5-easy|5-global|7-of)\b/.test(slug);
+    const wc = a.full_text.split(/\s+/).length;
+    return !isListArticle && wc >= 300 && wc <= 1200;
+  });
+  const baselineArticles = essayArticles.length >= 5 ? essayArticles : articles;
+  const colinMetrics = baselineArticles.map(a => analyzeText(a.full_text));
   const colinAvgWordCount = colinMetrics.length
     ? Math.round(colinMetrics.reduce((s, m) => s + m.wordCount, 0) / colinMetrics.length)
     : 750;

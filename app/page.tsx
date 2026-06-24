@@ -7,7 +7,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 
 interface HistoryItem { topic: string; article: string; timestamp: number; options: GenerateOptions }
 interface ReviewForm { rating: number; what_worked: string; what_to_improve: string; phrases_to_avoid: string; phrases_to_use_more: string }
-interface GenerateOptions { genre?: string; tone?: string; historicalDepth?: string; witLevel?: string; culturalFraming?: string; pov?: string; openingHook?: string }
+interface GenerateOptions { genre?: string; tone?: string; historicalDepth?: string; witLevel?: string; culturalFraming?: string; pov?: string; openingHook?: string; sourceNotes?: string }
 interface Taxonomy {
   genres: { id: string; name: string; description: string; depth: string; examples: string[] }[];
   tones: { id: string; name: string; description: string }[];
@@ -363,6 +363,20 @@ export default function Home() {
                 className="px-6 py-3 bg-[#c8a84b] text-[#0d0d0d] text-sm rounded-lg font-semibold hover:bg-[#d4b45a] disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
                 {generating ? 'Writing…' : 'Generate'}
               </button>
+            </div>
+
+            {/* Source notes — grounds AI in real facts, prevents hallucination */}
+            <div className="mb-4">
+              <label className="block text-[10px] font-medium text-[#555] uppercase tracking-widest mb-2">
+                Source Notes <span className="text-[#333] normal-case tracking-normal">— interview quotes, key facts, venue details (optional but recommended)</span>
+              </label>
+              <textarea
+                value={options.sourceNotes ?? ''}
+                onChange={e => setOptions(prev => ({ ...prev, sourceNotes: e.target.value || undefined }))}
+                placeholder="Paste real facts here: interview quotes, specific dishes, venue location, chef background, statistics, dates — anything you want the article to be grounded in. Leave empty to let AI infer from topic only."
+                rows={3}
+                className="w-full px-4 py-3 bg-[#0d0d0d] border border-[#1e1e1e] rounded-lg text-sm text-white placeholder-[#2a2a2a] focus:outline-none focus:border-[#c8a84b]/30 resize-none transition-colors"
+              />
             </div>
 
             {/* Customization panel */}

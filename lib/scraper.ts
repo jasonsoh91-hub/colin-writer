@@ -168,6 +168,21 @@ export function saveArticles(articles: Article[]): void {
   }
 }
 
+function cleanArticleText(text: string): string {
+  // Strip palateasia.com nav/header noise that precedes article body.
+  // Pattern: nav ends with "Share " immediately before article text.
+  const shareIdx = text.indexOf('Share ');
+  if (shareIdx !== -1) {
+    const candidate = text.slice(shareIdx + 6).trim();
+    if (candidate.length > 200) return candidate;
+  }
+  // Fallback: strip everything before the first sentence-like paragraph
+  const lines = text.split('\n');
+  const bodyStart = lines.findIndex(l => l.trim().length > 80 && /[.!?]/.test(l));
+  if (bodyStart !== -1) return lines.slice(bodyStart).join('\n').trim();
+  return text.trim();
+}
+
 export function loadArticles(): Article[] {
   // Prefer articles_v3 (58-article scrape) → v2 → v1
   const dirs = ['data/articles_v3', 'data/articles_v2', 'data/articles'].map(d => path.join(process.cwd(), d));
@@ -175,5 +190,8 @@ export function loadArticles(): Article[] {
 
   return fs.readdirSync(dir)
     .filter(f => f.endsWith('.json'))
-    .map(f => JSON.parse(fs.readFileSync(path.join(dir, f), 'utf-8')));
+    .map(f => {
+      const article = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf-8'));
+      return { ...article, full_text: cleanArticleText(article.full_text ?? '') };
+    });
 }
