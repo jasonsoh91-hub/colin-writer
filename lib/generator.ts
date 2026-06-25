@@ -48,11 +48,12 @@ const GENRE_STRUCTURES: Record<string, string> = {
 ## Article Structure — follow this skeleton exactly
 - Paragraph 1 (Hook): Challenge an assumption or name a problem the reader recognises. Use a collective "we/us" confessional voice — "For a lot of us...", "We've spent years...", "Those of us who..." — NOT an adversarial "You can X. Or you can Y." opener. Warm and self-deprecating, not combative. 3-4 sentences.
 - Paragraph 2 (Context): The principle behind the recommendation. 2-3 sentences. No fluff.
-- Paragraphs 3-5 (EXACTLY 3 items — no more, no fewer — if topic has more, pick the 3 most interesting): Each item gets ONE paragraph. Open with the item name as the first word or first phrase — written as a natural prose sentence: "Sambal is the one condiment worth making from scratch because..." NOT a heading, NOT bold, NOT italic, NOT a markdown ##. NEVER describe process as a recipe (no ingredient lists, no "you'll need X, Y, Z with quantities"). Describe the result, the experience, what it becomes — not the steps. 5-7 sentences each. At least 80 words per item paragraph.
+- Paragraphs 3-5 (EXACTLY 3 items — IGNORE any number in the topic title. If topic says "5 things" or "10 ways", still write EXACTLY 3. Pick the 3 most interesting.): Each item gets ONE paragraph. Open with the item name as the first word or first phrase — written as a natural prose sentence. NOT a heading, NOT bold, NOT italic, NOT a markdown ##. CRITICAL structural rule: each item paragraph should focus on ONE specific angle only — DO NOT cover the full arc [what it is → store-bought failure → homemade better → how to use → storage duration] in every paragraph. Pick the most surprising or specific angle for that item and commit to it. One paragraph might be about texture. Another about smell or sound. Another about what it makes possible in other cooking. VARY the approach. Do NOT end every item with how long it keeps — this creates mechanical repetition. NEVER list ingredients with quantities. Describe the result, the experience, what it becomes. 5-7 sentences each.
 - Paragraph 6 (Honest caveat): One candid, dry note on what you're NOT claiming. Short. Not preachy.
-- Paragraph 7 (Close): Collective "we/us" voice. Quiet. Send the reader off with a thought, not a summary. End on the feeling, not a disclaimer or thematic declaration.
+- Paragraph 7 (Close): ONE specific image, moment, or observation. Not a summary. Not a thematic declaration. Quiet and particular — the way Colin ends on "he adjusts the flame and goes back to work." End mid-thought, not at the conclusion.
 - TARGET WORD COUNT: 600-800 words total.
-- CRITICAL: Zero markdown headings. Zero recipe-format ingredient lists. Zero "Let's get into it." Zero transition sentences that announce the list is starting.`,
+- SENTENCE RHYTHM: Vary length dramatically. Write some sentences under 8 words. Some over 35 words. Never three sentences of similar length in a row. Colin's rhythm: long descriptive → short punchy → long → very short.
+- CRITICAL: Zero markdown headings. Zero recipe-format lists. Zero "Let's get into it." Zero store-bought vs homemade comparison in every paragraph.`,
 
   'venue-spotlight': `
 ## Article Structure — follow this skeleton exactly
@@ -219,8 +220,10 @@ ${sourceBlock ? sourceBlock + '\n\n' : ''}${customBlock ? customBlock + '\n\n' :
 - NEVER use AI mid-article summary lines ("The best desserts understand this instinctively", "That's where things get interesting", "Here's what we found")
 - NEVER repeat a distinctive Colin phrase within the same article — if "tremendous disservice" appears in para 1, it cannot appear again in the same piece
 - NEVER use over-constructed logical framing ("proves X belongs at Y just as naturally as Z") — Colin's register is warmer and more casual, not syllogistic
-- Close quietly and personally — NOT with a grand declaration
-- Never invent facts, specific dishes, or biographical details that were not given to you in the topic brief`;
+- Close quietly and personally — NOT with a grand declaration or a 3-part logical argument that builds to a thematic conclusion
+- Never invent facts, specific dishes, or biographical details that were not given to you in the topic brief
+- SENTENCE RHYTHM: Vary sentence length dramatically throughout. Short sentences (under 8 words) must appear. Very long sentences (over 35 words) must appear. Never write three sentences of similar length back-to-back. This is the single biggest difference between Colin's prose and AI prose.
+- If the topic contains a number ("5 ways", "10 things", "3 rules"), IGNORE that number for structure — follow the skeleton's item count exactly.`;
 }
 
 export async function generateArticle(topic: string, opts: GenerateOptions = {}): Promise<ReadableStream> {
