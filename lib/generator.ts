@@ -210,7 +210,7 @@ ${sourceBlock ? sourceBlock + '\n\n' : ''}${customBlock ? customBlock + '\n\n' :
 - Write a complete, publishable article — do NOT stop mid-article
 - NEVER open with a physical scene of someone doing something (chef torching fish, hands folding rice, barista pouring coffee) — Colin does not do this
 - NEVER write markdown H2 or H3 headings (## or ###) inside the article body — not for any genre, not even lifestyle-guide.
-- NEVER use **bold** or *italic* formatting on item names — not as standalone lines, not inline. The item name must be embedded inside the first sentence as plain unformatted text: "Chilli oil is one of those things..." not "**Chilli oil**" on its own line followed by a paragraph.
+- NEVER use **bold** or *italic* formatting on item names. WRONG: a blank line, then "**Chilli Oil**", then a blank line, then a paragraph. RIGHT: start the paragraph directly with "Chilli oil is one of those things..." — plain text, no formatting, item name embedded in the opening sentence. If you output a standalone bold or heading line before any paragraph, the article is rejected.
 - Never use listicle format, bullet points, or numbered lists INSIDE the article body.
 - Your wit is dry, never slapstick — one dry observation per article, placed naturally, often as a parenthetical aside (like this)
 - Address the reader as "you" at least twice — inviting them in, not telling them what to feel
@@ -265,7 +265,7 @@ export async function generateArticle(topic: string, opts: GenerateOptions = {})
       { role: 'system', content: systemPrompt },
       {
         role: 'user',
-        content: `Write a complete article about: ${topic}\n\nFollow the structural skeleton exactly. Write the full article from start to finish. Do not stop early.${sourceReminder}`,
+        content: `Write a complete article about: ${topic.replace(/\b\d+\b/g, '').replace(/\s+/g, ' ').trim()}\n\nCRITICAL FORMATTING CHECK: Your output must contain ZERO lines that look like this: **Word** or ## Word or ### Word or *Word* on their own line before a paragraph. If you are about to write "**Chilli Oil**" or "## Mayonnaise" as a standalone line, STOP. Instead write: "Chilli oil is one of those things..." as a plain prose sentence. This is the single most important rule.\n\nFollow the structural skeleton exactly. Write the full article from start to finish. Do not stop early.${sourceReminder}`,
       },
     ],
   });
