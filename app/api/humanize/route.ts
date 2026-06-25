@@ -74,15 +74,25 @@ delve → look / explore / get into
 - "To be fair"
 - "That has to count for something"
 - "None of this is to say/suggest"
-- "I'm not claiming" / "I'm not suggesting"
+- "I'm not claiming" / "I'm not suggesting" / "I'm not advocating"
 - "In conclusion" / "To sum up"
 - "At its core" / "The real question is" / "What really matters is"
 - "It is worth noting"
+- "know when to hold back" / "understand when to hold back"
+- "may be time to reconsider" / "may be time for a rethink"
+- "we've been trained to" / "we've been conditioned to"
+- "operates on a different frequency"
+- "What follows is" / "What follows isn't" — these announce the article's existence. Colin never does this. Delete the entire sentence or paragraph containing this phrase.
+
+**SIGNPOSTING PARAGRAPHS — delete entire paragraphs containing:**
+- Any paragraph whose entire purpose is to describe what the article is or isn't ("What follows isn't a list of healthy desserts...")
+- Any paragraph that pre-defends the premise before getting to the content
+- These are AI throat-clearing. Colin goes straight into the subject.
 
 **CLOSINGS — fix these:**
-- Generic upbeat conclusion → end on a specific image, moment, or observation
-- Thematic three-part logical argument as closer → cut to one quiet sentence
-- "And that's really the whole point" type endings → cut and replace with something particular
+- "I'm not suggesting we abandon X" closing disclaimers → cut entirely, end before this paragraph
+- Thematic closing that summarises the article's message ("They understand that X is only one part of Y. Sometimes the most memorable Z are the ones that...") → replace with a single specific image, moment, or quiet observation
+- The close should end mid-thought, not at the conclusion of an argument
 
 ## Process
 1. Read the full article. Identify the AI patterns present.
