@@ -195,6 +195,10 @@ export default function Home() {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
 
+  const [humanized, setHumanized] = useState('');
+  const [humanizing, setHumanizing] = useState(false);
+  const [activeArticleView, setActiveArticleView] = useState<'original' | 'humanized'>('original');
+
   const articleRef = useRef<string>('');
 
   useEffect(() => {
@@ -275,6 +279,25 @@ export default function Home() {
       setScrapeStatus(data.error ? `Error: ${data.error}` : `✓ ${data.articlesCount} articles refreshed`);
     } catch (err) { setScrapeStatus(`Error: ${err}`); }
     finally { setScraping(false); }
+  }
+
+  async function handleHumanize() {
+    if (!articleRef.current || humanizing) return;
+    setHumanizing(true);
+    setHumanized('');
+    setActiveArticleView('humanized');
+    let result = '';
+    try {
+      const res = await fetch('/api/humanize', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ article: articleRef.current }) });
+      if (!res.ok || !res.body) throw new Error(`Error ${res.status}`);
+      const reader = res.body.getReader(); const decoder = new TextDecoder();
+      while (true) {
+        const { done, value } = await reader.read(); if (done) break;
+        result += decoder.decode(value, { stream: true });
+        setHumanized(result);
+      }
+    } catch (err) { setHumanized(`Error: ${err}`); }
+    finally { setHumanizing(false); }
   }
 
   async function handleSuggest() {
@@ -498,8 +521,12 @@ export default function Home() {
                       </p>
                     </div>
                     {article && !generating && (
-                      <div className="flex gap-2">
-                        <button onClick={() => { navigator.clipboard.writeText(article); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
+                      <div className="flex gap-2 flex-wrap">
+                        <button onClick={handleHumanize} disabled={humanizing}
+                          className="text-xs px-3 py-1.5 bg-purple-900/30 border border-purple-500/30 rounded text-purple-400 hover:bg-purple-900/50 disabled:opacity-40 transition-colors font-medium">
+                          {humanizing ? 'Humanizing…' : 'Humanize ✦'}
+                        </button>
+                        <button onClick={() => { const text = activeArticleView === 'humanized' && humanized ? humanized : article; navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
                           className="text-xs px-3 py-1.5 border border-[#222] rounded text-[#555] hover:text-white hover:border-[#333] transition-colors">
                           {copied ? 'Copied!' : 'Copy'}
                         </button>
@@ -516,11 +543,24 @@ export default function Home() {
                     )}
                   </div>
                   <GoldDivider />
+
+                  {/* Article view toggle */}
+                  {humanized && (
+                    <div className="flex gap-1 mt-4">
+                      {(['original', 'humanized'] as const).map(v => (
+                        <button key={v} onClick={() => setActiveArticleView(v)}
+                          className={`px-3 py-1 text-xs rounded-full border transition-all ${activeArticleView === v ? (v === 'humanized' ? 'border-purple-500/50 text-purple-400 bg-purple-900/20' : 'border-[#c8a84b]/50 text-[#c8a84b] bg-[#c8a84b]/8') : 'border-[#222] text-[#444] hover:text-[#888]'}`}>
+                          {v === 'humanized' ? 'Humanized ✦' : 'Original'}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
                   <div className="mt-6 space-y-4">
-                    {article.split('\n').map((para, i) => para.trim() ? (
+                    {(activeArticleView === 'humanized' && humanized ? humanized : article).split('\n').map((para, i) => para.trim() ? (
                       <p key={i} className="text-[#ccc] leading-relaxed text-[15px]">{para}</p>
                     ) : null)}
-                    {generating && <span className="inline-block w-0.5 h-4 bg-[#c8a84b] animate-pulse" />}
+                    {(generating || humanizing) && <span className="inline-block w-0.5 h-4 bg-[#c8a84b] animate-pulse" />}
                   </div>
                   {reviewSubmitted && (
                     <div className="mt-6 p-4 bg-green-900/20 border border-green-500/20 rounded-lg">
