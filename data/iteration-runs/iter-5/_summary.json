@@ -1,0 +1,96 @@
+{
+  "runLabel": "iter-5",
+  "avg": 93,
+  "results": [
+    {
+      "id": "olive-oil",
+      "topic": "All About Olive Oil",
+      "genre": "gastronomic-curiosity",
+      "reference": "all-about-butter",
+      "wordCount": 958,
+      "textStyleScore": 95,
+      "colinAvgWordCount": 969,
+      "colinAvgSentenceLength": 26,
+      "metrics": {
+        "wordCount": 958,
+        "sentenceCount": 34,
+        "avgSentenceLength": 28,
+        "paragraphCount": 10,
+        "avgParagraphLength": 96,
+        "colinPhrasesFound": [
+          "in practice, though",
+          "of course,",
+          "all manner of",
+          "you'll find",
+          "whispers",
+          "jaya grocer",
+          "ben's independent grocer",
+          "slap a cover on this",
+          "call it a book"
+        ],
+        "genericPhrasesFound": [],
+        "startsWithHook": true,
+        "hasHistoricalRef": true,
+        "hasCulturalRef": true
+      },
+      "outputFile": "/Users/jason.soh/colin-writer/data/iteration-runs/iter-5/olive-oil.md"
+    },
+    {
+      "id": "pantry-staples",
+      "topic": "The Pantry Staples Every Home Cook Actually Needs",
+      "genre": "lifestyle-guide",
+      "reference": "kitchen-tools-you-need",
+      "wordCount": 903,
+      "textStyleScore": 85,
+      "colinAvgWordCount": 969,
+      "colinAvgSentenceLength": 26,
+      "metrics": {
+        "wordCount": 903,
+        "sentenceCount": 54,
+        "avgSentenceLength": 17,
+        "paragraphCount": 16,
+        "avgParagraphLength": 56,
+        "colinPhrasesFound": [
+          "jaya grocer",
+          "doesn't announce itself",
+          "that has to count for something",
+          "picture this:",
+          "doesn't need to be"
+        ],
+        "genericPhrasesFound": [],
+        "startsWithHook": true,
+        "hasHistoricalRef": true,
+        "hasCulturalRef": true
+      },
+      "outputFile": "/Users/jason.soh/colin-writer/data/iteration-runs/iter-5/pantry-staples.md"
+    },
+    {
+      "id": "umami",
+      "topic": "How Umami Actually Works: The Science Of The Fifth Taste",
+      "genre": "debunking-explainer",
+      "reference": "how-capsaicin-works",
+      "wordCount": 786,
+      "textStyleScore": 100,
+      "colinAvgWordCount": 969,
+      "colinAvgSentenceLength": 26,
+      "metrics": {
+        "wordCount": 786,
+        "sentenceCount": 33,
+        "avgSentenceLength": 24,
+        "paragraphCount": 9,
+        "avgParagraphLength": 87,
+        "colinPhrasesFound": [
+          "comes down to",
+          "you've probably",
+          "have you ever wondered",
+          "doesn't announce itself"
+        ],
+        "genericPhrasesFound": [],
+        "startsWithHook": true,
+        "hasHistoricalRef": true,
+        "hasCulturalRef": true
+      },
+      "outputFile": "/Users/jason.soh/colin-writer/data/iteration-runs/iter-5/umami.md"
+    }
+  ]
+}

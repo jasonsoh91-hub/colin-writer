@@ -7,17 +7,21 @@ const COLIN_PHRASES = [
   // Transitions & pivots
   'having said that', 'in practice, though', 'alright, so',
   'and yet', 'of course,', 'as it turns out',
-  'it\'s this', 'comes down to',
+  'it\'s this', 'comes down to', 'shall we say',
 
   // Rhetorical moves
   'all manner of', 'did we say', 'fair enough',
   'and what do we do', 'you\'ve probably', 'you\'ll find',
+  'have you ever wondered', 'now you might be thinking',
+  'as i\'ve been known to do', 'thank you for reading',
 
   // Characteristic expressions
   'tightly considered', 'on equal footing', 'in all actuality',
   'nothing against', 'the thing responsible',
   'in a way', 'for something that',
   'this only serves to', 'asking for so little',
+  'grandiose proclamations', 'perspicacity', 'neurological sleight of hand',
+  'ingenious trickery', 'most fascinating', 'inordinate amount',
 
   // Sensory / food voice
   'clings', 'perfumes', 'whispers', 'enriches',
@@ -27,11 +31,14 @@ const COLIN_PHRASES = [
   // Cultural anchors
   'mamak', 'thosai', 'murtabak', 'briyani',
   'working-class', 'unpretentious',
+  'jaya grocer', 'ben\'s independent grocer', 'kerrygold', 'beurre d\'isigny',
 
   // Wit markers
   'hopefully not literally', 'and what do we', 'man in suspenders',
   'similarly questionable', 'slap a cover on this', 'call it a book',
   'not ask for attention', 'doesn\'t announce itself',
+  '(hopefully)', 'that has to count for something', 'picture this:',
+  'an expensive chew toy', 'no one\'s watching',
 
   // Verified phrases from published articles — structure/voice markers
   'gently persuasive', 'firmly in the background', 'great abundance of sugar',
@@ -44,7 +51,7 @@ const COLIN_PHRASES = [
 ];
 
 const GENERIC_PHRASES = [
-  'in today\'s world', 'in conclusion', 'it is worth noting',
+  'in today\'s world', 'in conclusion', 'it is worth noting', 'it\'s worth noting',
   'delve into', 'it\'s important to note', 'furthermore',
   'in summary', 'as mentioned', 'moving on', 'firstly',
   'secondly', 'thirdly', 'to sum up', 'in a nutshell',
@@ -53,8 +60,12 @@ const GENERIC_PHRASES = [
   'the truth is,', 'carefully considered', 'that\'s where things get interesting',
   'suggest there might be', 'understand when to hold back',
   'there might be a way back in', 'it may be time for a rethink',
+  'understood this instinctively', 'understand this instinctively',
   'i\'m not claiming', 'i\'m not suggesting', 'this isn\'t about',
-  'let\'s take a look', 'here\'s what', 'proves x belongs',
+  'let\'s take a look', 'proves x belongs',
+  'none of this is to say', 'none of this is to suggest',
+  'operates on a similar principle', 'operates on a different frequency',
+  'we\'ve been conditioned', 'we\'ve been trained to', 'we\'ve been told',
 ];
 
 export interface ArticleMetrics {
@@ -102,8 +113,9 @@ function analyzeText(text: string): ArticleMetrics {
   const genericPhrasesFound = GENERIC_PHRASES.filter(p => lower.includes(p.toLowerCase()));
 
   const firstSentence = sentences[0]?.toLowerCase() ?? '';
-  // Colin never opens with these patterns — flag them as non-hooks
-  const badOpeners = ['the ', 'in today', 'in this article', 'welcome to', 'when it comes to', 'if you\'re', 'have you ever'];
+  // Colin never opens with these patterns — flag them as non-hooks.
+  // ('have you ever' was here but Colin DOES use it — see how-capsaicin-works opener.)
+  const badOpeners = ['the ', 'in today', 'in this article', 'welcome to', 'when it comes to', 'if you\'re'];
   const startsWithHook = firstSentence.length > 0 && !badOpeners.some(p => firstSentence.startsWith(p));
 
   const historicalWords = ['century', 'colonial', 'history', 'historical', 'tradition', 'origin', 'roots', 'founded', 'ancient', 'era'];
@@ -135,10 +147,10 @@ function analyzeText(text: string): ArticleMetrics {
 function computeTextStyleScore(metrics: ArticleMetrics, colinAvgWordCount: number, colinAvgSentenceLength: number): number {
   let score = 50; // base
 
-  // Word count: Colin's essays land 600-950 words
+  // Word count: based on real Colin corpus distribution (n=98, p25=685, p75=1150, p10=514, p90=1356)
   const wc = metrics.wordCount;
-  if (wc >= 600 && wc <= 950) score += 10;
-  else if (wc >= 450 && wc <= 1100) score += 5;
+  if (wc >= 685 && wc <= 1150) score += 10;
+  else if (wc >= 500 && wc <= 1400) score += 5;
 
   // Sentence length close to Colin's avg (~18-22 words)
   const sentenceDiff = Math.abs(metrics.avgSentenceLength - colinAvgSentenceLength);

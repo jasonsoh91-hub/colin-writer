@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
+import { PERSONAS, DEFAULT_PERSONA_ID, getPersona } from '@/lib/personas';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -195,25 +196,59 @@ export default function Home() {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
 
+  const [activePersonaId, setActivePersonaId] = useState(DEFAULT_PERSONA_ID);
+  const [personaMenuOpen, setPersonaMenuOpen] = useState(false);
+  const activePersona = getPersona(activePersonaId);
+
+  const [researchSources, setResearchSources] = useState<{ url: string; title: string }[]>([]);
+  const [researching, setResearching] = useState(false);
+
   const [humanized, setHumanized] = useState('');
   const [humanizing, setHumanizing] = useState(false);
   const [activeArticleView, setActiveArticleView] = useState<'original' | 'humanized'>('original');
+  const [humanizeReport, setHumanizeReport] = useState<{
+    finalScore: { score: number; label: string; reasons: string[] };
+    passes: { pass: number; score: { score: number; label: string } }[];
+    targetScore: number;
+  } | null>(null);
 
   const articleRef = useRef<string>('');
 
   useEffect(() => {
     fetch('/api/taxonomy').then(r => r.ok ? r.json() : null).then(d => d && setTaxonomy(d));
     try {
-      const saved = localStorage.getItem('colin-history');
-      if (saved) setHistory(JSON.parse(saved));
+      const persona = localStorage.getItem('active-persona');
+      if (persona && PERSONAS.some(p => p.id === persona)) setActivePersonaId(persona);
     } catch {}
   }, []);
 
+  // Per-persona history load + reset when switching
+  useEffect(() => {
+    try {
+      localStorage.setItem('active-persona', activePersonaId);
+      const key = activePersonaId === 'colin' ? 'colin-history' : `history-${activePersonaId}`;
+      const saved = localStorage.getItem(key);
+      setHistory(saved ? JSON.parse(saved) : []);
+    } catch {}
+    // Clear in-flight article state so switching personas doesn't leak content across writers
+    setArticle('');
+    setHumanized('');
+    setHumanizeReport(null);
+    setMetrics(null);
+    setShowReview(false);
+    setReviewSubmitted(false);
+    setResearchSources([]);
+    articleRef.current = '';
+  }, [activePersonaId]);
+
   useEffect(() => {
     if (history.length > 0) {
-      try { localStorage.setItem('colin-history', JSON.stringify(history)); } catch {}
+      try {
+        const key = activePersonaId === 'colin' ? 'colin-history' : `history-${activePersonaId}`;
+        localStorage.setItem(key, JSON.stringify(history));
+      } catch {}
     }
-  }, [history]);
+  }, [history, activePersonaId]);
 
   async function fetchMetrics(text: string) {
     setLoadingMetrics(true);
@@ -227,10 +262,22 @@ export default function Home() {
   async function handleGenerate() {
     if (!topic.trim() || generating) return;
     setGenerating(true); setArticle(''); setShowReview(false); setReviewSubmitted(false); setReview(emptyReview()); setMetrics(null);
+    setResearchSources([]);
+    // Show "Researching..." for CNN personas (auto-research runs server-side before stream starts).
+    const willResearch = activePersonaId !== 'colin' && !options.sourceNotes?.trim();
+    if (willResearch) setResearching(true);
     articleRef.current = '';
     try {
-      const res = await fetch('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ topic, options }) });
+      const res = await fetch('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ topic, options, personaId: activePersonaId }) });
+      setResearching(false);
       if (!res.ok || !res.body) throw new Error(`Error ${res.status}`);
+
+      // Parse research source URLs from response header (if any)
+      const rawHeader = res.headers.get('X-Research-Sources');
+      if (rawHeader) {
+        try { setResearchSources(JSON.parse(decodeURIComponent(rawHeader))); } catch {}
+      }
+
       const reader = res.body.getReader(); const decoder = new TextDecoder();
       while (true) {
         const { done, value } = await reader.read(); if (done) break;
@@ -238,9 +285,10 @@ export default function Home() {
         setArticle(articleRef.current);
       }
       setHistory(prev => [{ topic, article: articleRef.current, timestamp: Date.now(), options }, ...prev.slice(0, 9)]);
-      fetchMetrics(articleRef.current);
+      // Similarity analyzer is Colin-corpus-specific; skip for other personas until they have their own analyzer.
+      if (activePersonaId === 'colin') fetchMetrics(articleRef.current);
     } catch (err) { setArticle(`Error: ${err}`); }
-    finally { setGenerating(false); }
+    finally { setGenerating(false); setResearching(false); }
   }
 
   async function handleSubmitReview(regenerate = false) {
@@ -285,17 +333,15 @@ export default function Home() {
     if (!articleRef.current || humanizing) return;
     setHumanizing(true);
     setHumanized('');
+    setHumanizeReport(null);
     setActiveArticleView('humanized');
-    let result = '';
     try {
-      const res = await fetch('/api/humanize', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ article: articleRef.current }) });
-      if (!res.ok || !res.body) throw new Error(`Error ${res.status}`);
-      const reader = res.body.getReader(); const decoder = new TextDecoder();
-      while (true) {
-        const { done, value } = await reader.read(); if (done) break;
-        result += decoder.decode(value, { stream: true });
-        setHumanized(result);
-      }
+      const res = await fetch('/api/humanize', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ article: articleRef.current, personaId: activePersonaId }) });
+      if (!res.ok) throw new Error(`Error ${res.status}`);
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setHumanized(data.article);
+      setHumanizeReport({ finalScore: data.finalScore, passes: data.passes, targetScore: data.targetScore });
     } catch (err) { setHumanized(`Error: ${err}`); }
     finally { setHumanizing(false); }
   }
@@ -327,7 +373,37 @@ export default function Home() {
           <div className="flex items-center gap-3">
             <span className="text-[#c8a84b] font-bold text-lg tracking-widest uppercase">Top30Media</span>
             <span className="text-[#2a2a2a]">|</span>
-            <span className="text-white font-medium">Colin Writer</span>
+            <div className="relative">
+              <button
+                onClick={() => setPersonaMenuOpen(v => !v)}
+                className="flex items-center gap-2 px-2 py-1 rounded hover:bg-[#161616] transition-colors"
+              >
+                <span className="text-white font-medium">{activePersona.label}</span>
+                {!activePersona.active && (
+                  <span className="text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded bg-[#1a1a1a] text-[#666] border border-[#222]">stub</span>
+                )}
+                <span className="text-[#444] text-xs">{personaMenuOpen ? '▲' : '▼'}</span>
+              </button>
+              {personaMenuOpen && (
+                <div className="absolute top-full left-0 mt-2 w-60 bg-[#0d0d0d] border border-[#222] rounded-lg shadow-2xl z-50 overflow-hidden">
+                  {PERSONAS.map(p => (
+                    <button
+                      key={p.id}
+                      onClick={() => { setActivePersonaId(p.id); setPersonaMenuOpen(false); }}
+                      className={`w-full text-left px-3 py-2.5 flex items-center justify-between gap-2 border-b border-[#1a1a1a] last:border-0 transition-colors ${
+                        p.id === activePersonaId ? 'bg-[#c8a84b]/8 text-[#c8a84b]' : 'text-[#aaa] hover:bg-[#161616] hover:text-white'
+                      }`}
+                    >
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium">{p.label}</span>
+                        {p.publication && <span className="text-[10px] text-[#555]">{p.publication}</span>}
+                      </div>
+                      {!p.active && <span className="text-[9px] uppercase tracking-widest text-[#555]">pending</span>}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <span className="text-[10px] text-[#444] uppercase tracking-widest ml-1">AI Style Engine</span>
           </div>
           <div className="flex items-center gap-3">
@@ -340,15 +416,52 @@ export default function Home() {
             {metrics && metrics.totalReviews > 0 && (
               <span className="text-xs text-[#444]">{metrics.totalReviews} review{metrics.totalReviews > 1 ? 's' : ''} in loop</span>
             )}
-            <button onClick={handleScrape} disabled={scraping} className="text-xs px-3 py-1.5 border border-[#222] rounded text-[#555] hover:text-white hover:border-[#444] disabled:opacity-40 transition-colors">
-              {scraping ? 'Refreshing…' : 'Refresh Articles'}
-            </button>
+            {activePersonaId === 'colin' && (
+              <a href="/training" className="text-xs px-3 py-1.5 border border-[#c8a84b]/30 rounded text-[#c8a84b] hover:bg-[#c8a84b]/10 hover:border-[#c8a84b]/60 transition-colors">
+                Training Dashboard
+              </a>
+            )}
+            {activePersonaId === 'colin' && (
+              <button onClick={handleScrape} disabled={scraping} className="text-xs px-3 py-1.5 border border-[#222] rounded text-[#555] hover:text-white hover:border-[#444] disabled:opacity-40 transition-colors">
+                {scraping ? 'Refreshing…' : 'Refresh Articles'}
+              </button>
+            )}
           </div>
         </div>
         {scrapeStatus && <div className="max-w-7xl mx-auto px-6 pb-2 text-xs text-[#555]">{scrapeStatus}</div>}
         <GoldDivider />
       </header>
 
+      {!activePersona.active && (
+        <div className="max-w-3xl mx-auto px-6 py-24 text-center">
+          <p className="text-[#c8a84b] text-5xl mb-6">✦</p>
+          <h1 className="text-white text-3xl font-semibold mb-3">{activePersona.label}</h1>
+          <p className="text-[#666] text-sm mb-8">Profile not configured yet</p>
+          <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-8 text-left space-y-3">
+            <p className="text-[#aaa] text-sm leading-relaxed">
+              This editor is a placeholder. Once a style profile, taxonomy, and article corpus are added,
+              the full generator + humanizer + similarity pipeline will be wired in here — same UI as Colin Writer.
+            </p>
+            <p className="text-[10px] uppercase tracking-widest text-[#555] pt-2">Pending</p>
+            <ul className="text-xs text-[#666] space-y-1.5 list-disc list-inside marker:text-[#333]">
+              <li>Voice profile (writing style, banned phrases, signature moves)</li>
+              <li>Taxonomy (genres, tones, framing options)</li>
+              <li>Article corpus for similarity scoring</li>
+              <li>Reviewer pass for feedback loop</li>
+            </ul>
+            <div className="pt-4">
+              <button
+                onClick={() => setActivePersonaId('colin')}
+                className="text-xs px-4 py-2 border border-[#222] rounded text-[#888] hover:text-white hover:border-[#444] transition-colors"
+              >
+                ← Switch to Colin Writer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activePersona.active && (
       <div className="max-w-7xl mx-auto px-6 py-8 flex gap-6">
 
         {/* ── History sidebar ── */}
@@ -374,10 +487,10 @@ export default function Home() {
           {/* Clone progress banner */}
           {metrics && <CloneProgress metrics={metrics} />}
 
-          {/* Tab bar (shown after article) */}
+          {/* Tab bar (shown after article). Metrics tab only available for Colin (uses Colin corpus analyzer). */}
           {article && (
             <div className="flex gap-1 mb-6 border-b border-[#1a1a1a]">
-              {(['write', 'metrics'] as const).map(tab => (
+              {(activePersonaId === 'colin' ? (['write', 'metrics'] as const) : (['write'] as const)).map(tab => (
                 <button key={tab} onClick={() => setActiveTab(tab)}
                   className={`px-4 py-2 text-sm font-medium capitalize transition-colors border-b-2 -mb-px ${activeTab === tab ? 'border-[#c8a84b] text-[#c8a84b]' : 'border-transparent text-[#555] hover:text-[#888]'}`}>
                   {tab === 'metrics' ? 'Similarity Report' : 'Article'}
@@ -393,10 +506,12 @@ export default function Home() {
               <input type="text" value={topic} onChange={e => { setTopic(e.target.value); setSuggestions([]); }} onKeyDown={e => e.key === 'Enter' && handleGenerate()}
                 placeholder="e.g. Durian, teh tarik, sourdough, kaya toast, capsaicin…"
                 className="flex-1 px-4 py-3 bg-[#0d0d0d] border border-[#222] rounded-lg text-sm text-white placeholder-[#333] focus:outline-none focus:border-[#c8a84b]/50 transition-colors" />
-              <button onClick={() => setShowCustomize(v => !v)}
-                className={`px-4 py-3 rounded-lg border text-sm transition-colors ${showCustomize || activeOptionCount > 0 ? 'border-[#c8a84b]/50 text-[#c8a84b] bg-[#c8a84b]/5' : 'border-[#222] text-[#555] hover:border-[#333] hover:text-[#888]'}`}>
-                Style {activeOptionCount > 0 ? `(${activeOptionCount})` : '↓'}
-              </button>
+              {activePersonaId === 'colin' && (
+                <button onClick={() => setShowCustomize(v => !v)}
+                  className={`px-4 py-3 rounded-lg border text-sm transition-colors ${showCustomize || activeOptionCount > 0 ? 'border-[#c8a84b]/50 text-[#c8a84b] bg-[#c8a84b]/5' : 'border-[#222] text-[#555] hover:border-[#333] hover:text-[#888]'}`}>
+                  Style {activeOptionCount > 0 ? `(${activeOptionCount})` : '↓'}
+                </button>
+              )}
               {topic.trim() && (
                 <button onClick={handleSuggest} disabled={loadingSuggestions}
                   className="px-4 py-3 rounded-lg border border-[#222] text-sm text-[#555] hover:border-[#333] hover:text-[#888] disabled:opacity-40 transition-colors whitespace-nowrap">
@@ -405,7 +520,7 @@ export default function Home() {
               )}
               <button onClick={handleGenerate} disabled={generating || !topic.trim()}
                 className="px-6 py-3 bg-[#c8a84b] text-[#0d0d0d] text-sm rounded-lg font-semibold hover:bg-[#d4b45a] disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
-                {generating ? 'Writing…' : 'Generate'}
+                {researching ? 'Researching…' : generating ? 'Writing…' : 'Generate'}
               </button>
             </div>
 
@@ -503,6 +618,22 @@ export default function Home() {
           {/* ── WRITE TAB ── */}
           {activeTab === 'write' && (
             <>
+              {researchSources.length > 0 && (
+                <div className="bg-[#0a0a0a] border border-[#1a3a5c]/40 rounded-lg p-4 mb-4">
+                  <p className="text-[10px] uppercase tracking-widest text-[#5b8fb9] mb-2">Researched Sources ({researchSources.length}) — grounded in real reporting</p>
+                  <ul className="space-y-1.5">
+                    {researchSources.map((s, i) => (
+                      <li key={i} className="text-xs text-[#888] truncate">
+                        <span className="text-[#5b8fb9] mr-2">›</span>
+                        <a href={s.url} target="_blank" rel="noopener noreferrer" className="hover:text-white hover:underline">
+                          {s.title || s.url}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
               {(article || generating) && (
                 <div className="bg-[#111] border border-[#1a1a1a] rounded-xl p-8 mb-6">
                   <div className="flex items-center justify-between mb-5">
@@ -530,15 +661,17 @@ export default function Home() {
                           className="text-xs px-3 py-1.5 border border-[#222] rounded text-[#555] hover:text-white hover:border-[#333] transition-colors">
                           {copied ? 'Copied!' : 'Copy'}
                         </button>
-                        {!reviewSubmitted && (
+                        {activePersonaId === 'colin' && !reviewSubmitted && (
                           <button onClick={() => setShowReview(v => !v)}
                             className="text-xs px-3 py-1.5 bg-[#c8a84b]/8 border border-[#c8a84b]/30 rounded text-[#c8a84b] hover:bg-[#c8a84b]/15 transition-colors font-medium">
                             {showReview ? 'Hide Review' : 'Colin Reviews ↓'}
                           </button>
                         )}
-                        <button onClick={() => setActiveTab('metrics')} className="text-xs px-3 py-1.5 border border-[#1e1e1e] rounded text-[#555] hover:text-white transition-colors">
-                          Report →
-                        </button>
+                        {activePersonaId === 'colin' && (
+                          <button onClick={() => setActiveTab('metrics')} className="text-xs px-3 py-1.5 border border-[#1e1e1e] rounded text-[#555] hover:text-white transition-colors">
+                            Report →
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>
@@ -553,6 +686,47 @@ export default function Home() {
                           {v === 'humanized' ? 'Humanized ✦' : 'Original'}
                         </button>
                       ))}
+                    </div>
+                  )}
+
+                  {/* AI score report */}
+                  {humanizeReport && activeArticleView === 'humanized' && (
+                    <div className="mt-4 p-4 bg-[#0a0a0a] border border-[#222] rounded-lg">
+                      <div className="flex items-center justify-between mb-3">
+                        <p className="text-[10px] uppercase tracking-widest text-[#666]">
+                          {activePersonaId === 'colin' ? 'AI Score (self-hosted)' : 'AI Detector Score (ModernBERT)'}
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-2xl font-bold ${
+                            humanizeReport.finalScore.label === 'human' ? 'text-green-400' :
+                            humanizeReport.finalScore.label === 'borderline' ? 'text-yellow-400' :
+                            'text-red-400'
+                          }`}>{humanizeReport.finalScore.score}</span>
+                          <span className="text-xs text-[#666]">/ target &lt; {humanizeReport.targetScore}</span>
+                        </div>
+                      </div>
+                      <div className="flex gap-1 mb-3">
+                        {humanizeReport.passes.map(p => (
+                          <div key={p.pass} className="flex-1 text-center">
+                            <p className="text-[9px] text-[#444] uppercase">{p.pass === 0 ? 'Input' : `Pass ${p.pass}`}</p>
+                            <p className={`text-sm font-mono ${
+                              p.score.label === 'human' ? 'text-green-400' :
+                              p.score.label === 'borderline' ? 'text-yellow-400' :
+                              'text-red-400'
+                            }`}>{p.score.score}</p>
+                          </div>
+                        ))}
+                      </div>
+                      {humanizeReport.finalScore.reasons.length > 0 && (
+                        <div className="border-t border-[#1a1a1a] pt-2 mt-2">
+                          <p className="text-[9px] uppercase tracking-widest text-[#444] mb-1">Remaining signals</p>
+                          <ul className="text-xs text-[#888] space-y-0.5">
+                            {humanizeReport.finalScore.reasons.map((r, i) => (
+                              <li key={i}>• {r}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -619,7 +793,10 @@ export default function Home() {
                 <div className="text-center py-24">
                   <p className="text-[#222] text-5xl mb-4">✦</p>
                   <p className="text-[#444] text-lg">Enter a topic and generate</p>
-                  <p className="text-[#2a2a2a] text-sm mt-2">Use Style ↓ to configure genre, tone, and depth</p>
+                  <p className="text-[#2a2a2a] text-sm mt-2">
+                    Writing as <span className="text-[#c8a84b]">{activePersona.name}</span>
+                    {activePersona.publication && ` · ${activePersona.publication}`}
+                  </p>
                 </div>
               )}
             </>
@@ -720,6 +897,7 @@ export default function Home() {
           )}
         </main>
       </div>
+      )}
     </div>
   );
 }

@@ -1,0 +1,99 @@
+{
+  "runLabel": "iter-2",
+  "avg": 85,
+  "results": [
+    {
+      "id": "olive-oil",
+      "topic": "All About Olive Oil",
+      "genre": "gastronomic-curiosity",
+      "reference": "all-about-butter",
+      "wordCount": 1044,
+      "textStyleScore": 90,
+      "colinAvgWordCount": 969,
+      "colinAvgSentenceLength": 26,
+      "metrics": {
+        "wordCount": 1044,
+        "sentenceCount": 39,
+        "avgSentenceLength": 27,
+        "paragraphCount": 10,
+        "avgParagraphLength": 104,
+        "colinPhrasesFound": [
+          "you've probably",
+          "you'll find",
+          "whispers",
+          "slap a cover on this",
+          "call it a book"
+        ],
+        "genericPhrasesFound": [],
+        "startsWithHook": true,
+        "hasHistoricalRef": true,
+        "hasCulturalRef": true
+      },
+      "outputFile": "/Users/jason.soh/colin-writer/data/iteration-runs/iter-2/olive-oil.md"
+    },
+    {
+      "id": "pantry-staples",
+      "topic": "The Pantry Staples Every Home Cook Actually Needs",
+      "genre": "lifestyle-guide",
+      "reference": "kitchen-tools-you-need",
+      "wordCount": 769,
+      "textStyleScore": 85,
+      "colinAvgWordCount": 969,
+      "colinAvgSentenceLength": 26,
+      "metrics": {
+        "wordCount": 769,
+        "sentenceCount": 40,
+        "avgSentenceLength": 19,
+        "paragraphCount": 6,
+        "avgParagraphLength": 128,
+        "colinPhrasesFound": [
+          "in practice, though",
+          "in a way",
+          "that has to count for something",
+          "picture this:"
+        ],
+        "genericPhrasesFound": [],
+        "startsWithHook": true,
+        "hasHistoricalRef": false,
+        "hasCulturalRef": true
+      },
+      "outputFile": "/Users/jason.soh/colin-writer/data/iteration-runs/iter-2/pantry-staples.md"
+    },
+    {
+      "id": "umami",
+      "topic": "How Umami Actually Works: The Science Of The Fifth Taste",
+      "genre": "debunking-explainer",
+      "reference": "how-capsaicin-works",
+      "wordCount": 975,
+      "textStyleScore": 80,
+      "colinAvgWordCount": 969,
+      "colinAvgSentenceLength": 26,
+      "metrics": {
+        "wordCount": 975,
+        "sentenceCount": 45,
+        "avgSentenceLength": 22,
+        "paragraphCount": 10,
+        "avgParagraphLength": 98,
+        "colinPhrasesFound": [
+          "of course,",
+          "you'll find",
+          "have you ever wondered",
+          "now you might be thinking",
+          "in a way",
+          "neurological sleight of hand",
+          "ingenious trickery",
+          "perfumes",
+          "doesn't announce itself",
+          "that has to count for something"
+        ],
+        "genericPhrasesFound": [
+          "understood this instinctively"
+        ],
+        "startsWithHook": true,
+        "hasHistoricalRef": true,
+        "hasCulturalRef": true
+      },
+      "outputFile": "/Users/jason.soh/colin-writer/data/iteration-runs/iter-2/umami.md"
+    }
+  ]
+}

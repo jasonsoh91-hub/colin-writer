@@ -183,15 +183,23 @@ function cleanArticleText(text: string): string {
   return text.trim();
 }
 
-export function loadArticles(): Article[] {
-  // Prefer articles_v3 (58-article scrape) → v2 → v1
-  const dirs = ['data/articles_v3', 'data/articles_v2', 'data/articles'].map(d => path.join(process.cwd(), d));
-  const dir = dirs.find(d => fs.existsSync(d)) ?? dirs[1];
+export function loadArticles(personaId: string = 'colin'): Article[] {
+  // Per-persona corpus loading. Colin uses legacy dirs (articles_v3 → v2 → v1).
+  // All other personas use data/personas/{id}/articles/.
+  const candidateDirs = personaId === 'colin'
+    ? ['data/articles_v3', 'data/articles_v2', 'data/articles']
+    : [`data/personas/${personaId}/articles`];
+
+  const dirs = candidateDirs.map(d => path.join(process.cwd(), d));
+  const dir = dirs.find(d => fs.existsSync(d));
+  if (!dir) return [];
 
   return fs.readdirSync(dir)
     .filter(f => f.endsWith('.json'))
     .map(f => {
       const article = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf-8'));
-      return { ...article, full_text: cleanArticleText(article.full_text ?? '') };
+      // Only Colin's corpus has palateasia.com nav noise to strip; others pre-cleaned by scraper.
+      const text = personaId === 'colin' ? cleanArticleText(article.full_text ?? '') : (article.full_text ?? '');
+      return { ...article, full_text: text };
     });
 }

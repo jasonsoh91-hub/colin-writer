@@ -1,0 +1,90 @@
+{
+  "runLabel": "baseline-1",
+  "avg": 85,
+  "results": [
+    {
+      "id": "olive-oil",
+      "topic": "All About Olive Oil",
+      "genre": "gastronomic-curiosity",
+      "reference": "all-about-butter",
+      "wordCount": 897,
+      "textStyleScore": 95,
+      "colinAvgWordCount": 969,
+      "colinAvgSentenceLength": 26,
+      "metrics": {
+        "wordCount": 897,
+        "sentenceCount": 31,
+        "avgSentenceLength": 29,
+        "paragraphCount": 10,
+        "avgParagraphLength": 90,
+        "colinPhrasesFound": [
+          "all manner of",
+          "you've probably",
+          "you'll find",
+          "slap a cover on this",
+          "call it a book"
+        ],
+        "genericPhrasesFound": [],
+        "startsWithHook": true,
+        "hasHistoricalRef": true,
+        "hasCulturalRef": true
+      },
+      "outputFile": "/Users/jason.soh/colin-writer/data/iteration-runs/baseline-1/olive-oil.md"
+    },
+    {
+      "id": "pantry-staples",
+      "topic": "The Pantry Staples Every Home Cook Actually Needs",
+      "genre": "lifestyle-guide",
+      "reference": "kitchen-tools-you-need",
+      "wordCount": 597,
+      "textStyleScore": 79,
+      "colinAvgWordCount": 969,
+      "colinAvgSentenceLength": 26,
+      "metrics": {
+        "wordCount": 597,
+        "sentenceCount": 30,
+        "avgSentenceLength": 20,
+        "paragraphCount": 7,
+        "avgParagraphLength": 85,
+        "colinPhrasesFound": [
+          "for something that",
+          "hopefully not literally"
+        ],
+        "genericPhrasesFound": [
+          "the truth is,"
+        ],
+        "startsWithHook": true,
+        "hasHistoricalRef": true,
+        "hasCulturalRef": true
+      },
+      "outputFile": "/Users/jason.soh/colin-writer/data/iteration-runs/baseline-1/pantry-staples.md"
+    },
+    {
+      "id": "umami",
+      "topic": "How Umami Actually Works: The Science Of The Fifth Taste",
+      "genre": "debunking-explainer",
+      "reference": "how-capsaicin-works",
+      "wordCount": 914,
+      "textStyleScore": 82,
+      "colinAvgWordCount": 969,
+      "colinAvgSentenceLength": 26,
+      "metrics": {
+        "wordCount": 914,
+        "sentenceCount": 57,
+        "avgSentenceLength": 16,
+        "paragraphCount": 10,
+        "avgParagraphLength": 91,
+        "colinPhrasesFound": [
+          "and yet",
+          "fair enough",
+          "clings"
+        ],
+        "genericPhrasesFound": [],
+        "startsWithHook": true,
+        "hasHistoricalRef": true,
+        "hasCulturalRef": true
+      },
+      "outputFile": "/Users/jason.soh/colin-writer/data/iteration-runs/baseline-1/umami.md"
+    }
+  ]
+}

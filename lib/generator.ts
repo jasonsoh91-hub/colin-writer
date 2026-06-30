@@ -3,6 +3,7 @@ import { loadStyleProfile } from './style-extractor';
 import { loadArticles, type Article } from './scraper';
 import { buildFeedbackPrompt } from './feedback';
 import { loadTaxonomy } from './taxonomy';
+import { getPersona } from './personas';
 
 function getClient() {
   return new OpenAI({
@@ -46,14 +47,18 @@ const GENRE_STRUCTURES: Record<string, string> = {
 
   'lifestyle-guide': `
 ## Article Structure — follow this skeleton exactly
-- Paragraph 1 (Hook): Challenge an assumption or name a problem the reader recognises. Use a collective "we/us" confessional voice — "For a lot of us...", "We've spent years...", "Those of us who..." — NOT an adversarial "You can X. Or you can Y." opener. Warm and self-deprecating, not combative. 3-4 sentences.
-- Paragraph 2 (Context): The principle behind the recommendation. 2-3 sentences. No fluff.
-- Paragraphs 3-5 (EXACTLY 3 items — IGNORE any number in the topic title. If topic says "5 things" or "10 ways", still write EXACTLY 3. Pick the 3 most interesting.): Each item gets ONE paragraph. The item name must be the first word of the paragraph, embedded into a plain prose sentence — "Chilli oil is one of those things..." — NO bold, NO italic, NO formatting, NO standalone name before the paragraph. It is simply how the sentence starts. CRITICAL structural rule: each item paragraph focuses on ONE specific angle only — texture, or smell, or what it makes possible, or a moment of using it. DO NOT run through the full arc [what it is → store-bought failure → homemade better → usage → storage] in every paragraph. VARY the approach per item. Do NOT close every item with a storage duration sentence. NEVER list ingredients with quantities. 5-7 sentences each.
-- Paragraph 6 (Honest caveat): One candid, dry note on what you're NOT claiming. Short. Not preachy.
-- Paragraph 7 (Close): ONE specific image, moment, or observation. Not a summary. Not a thematic declaration. Quiet and particular — the way Colin ends on "he adjusts the flame and goes back to work." End mid-thought, not at the conclusion.
-- TARGET WORD COUNT: 600-800 words total.
+- Paragraph 1 (Hook): Two short opening sentences that flip an assumption ("You can spend hundreds on the latest kitchen gadget if you'd like. Or you can spend a fraction of that on a few deceptively simple tools..."). Then expand. Warm and self-deprecating, not combative. 3-5 sentences total. End the opener paragraph with a single sentence that hands off to the items, e.g. "Here are three that'll really make cooking a breeze."
+- ITEM FORMAT — match Colin's published palateasia.com pattern exactly:
+   • Each item gets a STANDALONE plain-text line containing ONLY the item name (e.g. "Danish dough whisk", "Fish spatula", "Digital thermometer"). NO bold, NO italic, NO "##", NO "###", NO bullet. Just the item name on its own line, sentence-cased ("Danish dough whisk" not "DANISH DOUGH WHISK").
+   • Immediately below that line, write ONE flowing prose paragraph about that item. Do NOT repeat the item name as the first word of the prose. Open with a wry observation: "At first glance, [item] looks less like a kitchen utensil and more like…" or "Despite the name, [item] might just be…" — characterising it before describing it.
+   • EXACTLY 3 items. IGNORE any number in the topic title — if it says "5 things" or "10 ways", still write 3.
+- Each item paragraph (5-9 sentences): Open with a wry characterisation. Describe the surprising property. Walk through ONE concrete use case. Acknowledge the alternative or competitor briefly. Close on a dry aside, a personal nudge, or a small concrete image.
+- Items can vary their angle — one focuses on the absurd look of the tool, one on what problem it solves, one on a "Picture this:" worst-case scenario you've personally faced. VARY the rhythm per item.
+- Final paragraph (Quiet close): One specific image or invitation. Not a summary. Not a thematic declaration. Often Colin ends a lifestyle-guide with: "The next time you're tempted by [counter-option], consider [the simpler thing] instead. Chances are it'll [outcome]." Quiet, specific, no grand finish.
+- TARGET WORD COUNT: 650-850 words total.
 - SENTENCE RHYTHM: Vary length dramatically. Write some sentences under 8 words. Some over 35 words. Never three sentences of similar length in a row. Colin's rhythm: long descriptive → short punchy → long → very short.
-- CRITICAL: Zero markdown headings. Zero recipe-format lists. Zero "Let's get into it." Zero store-bought vs homemade comparison in every paragraph.`,
+- ABSURDIST SIMILE: Each item paragraph should contain ONE concrete absurdist comparison, e.g. "looks like something an eccentric inventor put together to conduct electricity", "your forearm starts cursing you out halfway through", "becomes an expensive chew toy that even the dog thinks is not worth the bother". Specific, vivid, slightly self-deprecating.
+- BANNED IN LIFESTYLE-GUIDE BODY: markdown ## or ### headings, **bold**, *italic*, numbered list, bullet point, "Let's get into it.", a storage-duration close on every item, a store-bought-vs-homemade comparison on every item.`,
 
   'venue-spotlight': `
 ## Article Structure — follow this skeleton exactly
@@ -191,6 +196,26 @@ const COLIN_REAL_OPENINGS = `
 NOTICE: None of these open with a scene of someone doing something. None start with "The". None announce the article's existence ("In this article, we..."). All land the core idea in the first two sentences.
 `.trim();
 
+const COLIN_SIGNATURE_MOVES = `
+## Colin's Signature Voice Moves — Use At Least 3 Per Article
+
+1. **Parenthetical mid-phrase wink** — Colin inserts (hopefully) or similar one-word qualifier inside a longer noun phrase: "as a (hopefully) habitual consumer of my articles", "reaching for the nearest glass of water (or milk, if you're smarter than the average bear)". The parenthetical lands the joke without breaking sentence flow.
+
+2. **Concrete absurdist simile** — replace any abstract description with a specific, slightly-too-real comparison drawn from everyday life: "rivals that one bespectacled kid in your class whose enthusiasm for trains was a little concerning", "the gleaming sort of yellow that looks like somebody cut out a block of the eight o'clock sun", "becomes an expensive chew toy that even the dog thinks is not worth the bother", "sharing half of it with your trousers by the end". One per major paragraph in deep-dives. Never a generic simile.
+
+3. **"Shall we say" hedge** — Colin softens a sharp observation by inserting "shall we say" or "to put it mildly" mid-sentence: "the climate is, shall we say, not particularly kind to butter". Use once per article when downplaying.
+
+4. **Cascading short-sentence punchline** — when ending a thought, Colin sometimes stacks 2-3 very short sentences for rhythm: "One has salt. The other doesn't. Thank you for reading." or "End of story. Except no, it's not. It's not the end of the story." This is the comic beat, not a stylistic tic — use ONCE per article max, to puncture the reader's expectation.
+
+5. **Meta narrator reference** — Colin acknowledges his own writing/research process: "as I've been known to do", "as a habitual consumer of my articles", "I'd need to slap a cover on this and call it a book", "I'm not just a dairy-obsessed pedant". Once per article.
+
+6. **"All manner of"** — Colin's preferred phrase for "many" — "all manner of foil-wrapped blocks", "all manner of other descriptors that sound like wine tasting". Use once per article.
+
+7. **Elevated diction in a casual register** — for science/explainer topics Colin reaches for "perspicacity", "ingenious trickery", "neurological sleight of hand", "fascinating mechanism of action", but immediately undercuts with a casual phrase. Pair high diction with low diction.
+
+8. **Specific named brands or places, not generic ones** — "Kerrygold from Ireland, Président from France, Lurpak from Denmark", "Jaya Grocer or Ben's Independent Grocer", "beurre d'Isigny". Real names, not "a famous Irish brand".
+`.trim();
+
 function buildSystemPrompt(styleProfile: string, fullArticleExample: string, feedbackPrompt: string, customBlock: string, sourceNotes?: string): string {
   const sourceBlock = sourceNotes?.trim()
     ? `## Source Material — Use These Specific Facts, Quotes, and Details\nDo NOT invent details not present here. Ground every claim in this material.\n\n${sourceNotes.trim()}`
@@ -203,20 +228,33 @@ ${styleProfile}
 
 ${COLIN_REAL_OPENINGS}
 
+${COLIN_SIGNATURE_MOVES}
+
 ## A Complete Published Article Of Yours — Study The Full Structure, Voice, And Rhythm
 ${fullArticleExample}
 
 ${sourceBlock ? sourceBlock + '\n\n' : ''}${customBlock ? customBlock + '\n\n' : ''}${feedbackPrompt ? feedbackPrompt + '\n\n' : ''}## Non-Negotiable Rules
 - Write a complete, publishable article — do NOT stop mid-article
 - NEVER open with a physical scene of someone doing something (chef torching fish, hands folding rice, barista pouring coffee) — Colin does not do this
-- NEVER write markdown H2 or H3 headings (## or ###) inside the article body — not for any genre, not even lifestyle-guide.
-- NEVER use **bold** or *italic* formatting on item names. WRONG: a blank line, then "**Chilli Oil**", then a blank line, then a paragraph. RIGHT: start the paragraph directly with "Chilli oil is one of those things..." — plain text, no formatting, item name embedded in the opening sentence. If you output a standalone bold or heading line before any paragraph, the article is rejected.
-- Never use listicle format, bullet points, or numbered lists INSIDE the article body.
+- NEVER write markdown H2 or H3 headings (## or ###) inside the article body. NEVER use **bold** or *italic* formatting on item names. The ONLY allowed item separator is a plain-text line containing just the item name (sentence-cased), used ONLY in the lifestyle-guide genre. Every other genre runs as continuous prose with NO item separators of any kind.
+- Never use bullet points or numbered lists INSIDE the article body.
 - Your wit is dry, never slapstick — one dry observation per article, placed naturally, often as a parenthetical aside (like this)
 - Address the reader as "you" at least twice — inviting them in, not telling them what to feel
 - Anchor the article in a specific Malaysian/KL location, reference, or cultural touchstone unless explicitly told to use a global lens
 - Write as if this is going straight to your editor — no AI filler, no throat-clearing
-- NEVER use these phrases — they will be rejected: "In conclusion", "It is worth noting", "In today's world", "Needless to say", "refuses to be pinned down", "royal and rustic", "liquid history", "delve into", "tapestry", "rich tapestry", "stands as a testament", "it's worth noting", "at the end of the day", "journey through", "a culinary journey", "takes us on a journey", "passionate", "dedicated", "vibrant", "bustling", "undeniably", "The truth is,", "carefully considered", "That's where things get interesting", "suggest there might be", "understand when to hold back", "know when to hold back", "there might be a way back in", "it may be time for a rethink", "may be time to reconsider", "The reality is", "understand this instinctively", "none of this is to suggest", "none of this is to say", "we've been conditioned", "conditioned to", "we've been trained to", "it's worth remembering", "at its core", "let's get into it", "here's the thing", "here's what", "that has to count for something", "to be fair", "Picture this:", "picture this", "Imagine this:", "That's what happens when", "What follows is", "What follows isn't", "operates on a different frequency"
+- NEVER use these phrases — they will be rejected: "In conclusion", "It is worth noting", "In today's world", "Needless to say", "refuses to be pinned down", "royal and rustic", "liquid history", "delve into", "tapestry", "rich tapestry", "stands as a testament", "it's worth noting", "at the end of the day", "journey through", "a culinary journey", "takes us on a journey", "passionate", "dedicated", "vibrant", "bustling", "undeniably", "The truth is,", "carefully considered", "That's where things get interesting", "suggest there might be", "understand when to hold back", "know when to hold back", "there might be a way back in", "it may be time for a rethink", "may be time to reconsider", "The reality is", "understand this instinctively", "understood this instinctively", "none of this is to suggest", "none of this is to say", "we've been conditioned", "conditioned to", "we've been trained to", "it's worth remembering", "at its core", "let's get into it", "here's the thing", "Imagine this:", "That's what happens when", "What follows is", "What follows isn't", "operates on a different frequency"
+- ALLOWED (Colin actually uses these — do not avoid them): "Picture this:" (only as a comic worst-case scenario opener), "that has to count for something" (only as a quiet wry close, not mid-article), "Have you ever wondered…", "Now you might be thinking…", "shall we say", "as I've been known to do", "all manner of", "(hopefully) [habitual/word]" — Colin's playful parenthetical-mid-phrase
+
+- INSTANT REWRITES — if you catch yourself about to write the left-hand phrase, write the right-hand replacement instead:
+   • "understood this instinctively" / "understand this instinctively" → "had no name for it, but they could see what it did" or "knew without needing the word"
+   • "the truth is," → just delete it and rewrite the sentence directly without the qualifier
+   • "at its core" → "in essence" or just delete
+   • "here's the thing" → "the thing is" or delete
+   • "tremendous disservice" → "rough deal" or "the kind of slight that makes you wonder if anyone was paying attention"
+   • "it's worth noting" / "it is worth noting" → delete entirely; just state the fact
+   • "none of this is to say" / "none of this is to suggest" → "Of course," or "Mind you,"
+   • "operates on a similar principle" → "does something similar" or "works the same way"
+   • "we've been conditioned to" / "we've been trained to" → "we've all somehow ended up" or just delete
 - NEVER write a self-disclaimer or caveat paragraph — Colin does not pre-defend his recommendations, announce what the article is or isn't ("What follows isn't a list of...", "This isn't about..."), or explain his intentions ("I'm not claiming...", "I'm not suggesting..."). Cut it. Go straight into the content.
 - NEVER use AI mid-article summary lines ("The best desserts understand this instinctively", "That's where things get interesting", "Here's what we found")
 - NEVER repeat a distinctive Colin phrase within the same article — if "tremendous disservice" appears in para 1, it cannot appear again in the same piece
@@ -227,7 +265,89 @@ ${sourceBlock ? sourceBlock + '\n\n' : ''}${customBlock ? customBlock + '\n\n' :
 - If the topic contains a number ("5 ways", "10 things", "3 rules"), IGNORE that number for structure — follow the skeleton's item count exactly.`;
 }
 
-export async function generateArticle(topic: string, opts: GenerateOptions = {}): Promise<ReadableStream> {
+// ── Generic (non-Colin) persona prompt builder ───────────────────────────────
+// Used when personaId !== 'colin'. Avoids all Colin-specific banned phrases,
+// genre skeletons, KL anchors, and feedback loop. Lets the AI mirror the
+// extracted style profile + corpus example without contradicting Colin's rules.
+
+function buildGenericSystemPrompt(args: {
+  personaName: string;
+  publication: string;
+  styleProfile: string;
+  corpusExamples: string;
+  sourceNotes?: string;
+}): string {
+  const { personaName, publication, styleProfile, corpusExamples, sourceNotes } = args;
+  const sourceBlock = sourceNotes?.trim()
+    ? `## Source Material — Use These Specific Facts, Quotes, And Details\nDo NOT invent details not present here. Ground every claim in this material.\n\n${sourceNotes.trim()}\n\n`
+    : '';
+
+  const profileBlock = styleProfile.trim()
+    ? `## Extracted Style Guide (derived from the corpus)\n${styleProfile}\n\n`
+    : '';
+
+  const exampleBlock = corpusExamples.trim()
+    ? `## Published Articles From The Corpus — These ARE The Voice\n${corpusExamples}\n\n`
+    : '';
+
+  return `You are a working reporter for ${publication}. You are NOT a literary writer. You are NOT crafting an essay. You are filing a feature story for the news desk.
+
+${profileBlock}${exampleBlock}${sourceBlock}## How Real ${publication} Reporters Write (Anti-AI Tells)
+You must imitate the boring, institutional, slightly-loose style of a working reporter — NOT the polished AI default.
+
+**Sentence-level rules (STRICT — detectors flag every violation):**
+- HARD MINIMUM: every sentence must contain at least 12 words OR at least one comma. If a sentence is under 12 words and has no comma, merge it into the adjacent sentence.
+- NO consecutive short sentences. If you write a sentence under 15 words, the next two sentences must each be 20+ words.
+- NO 1-word, 2-word, 3-word, or 4-word sentences. Never. Not for emphasis. Not for rhythm. Not ever.
+- NO emphatic single-sentence paragraphs. Every paragraph must contain at least 3 sentences.
+- DO NOT end the article on a short emphatic line ("And that is enough." / "It isn't." / "Worth it."). The final sentence must be 20+ words and contain a comma.
+- DO NOT write "X is Y's Super Bowl" / "X is Y's ground zero" / "X is the new Y" metaphor formulas. These are AI signatures.
+- DO NOT engineer rhythm pairs ("Tenth visit. First time it clicked." / "Their tradition. Their way of marking the holiday."). Just write normal expository prose.
+
+**EXAMPLE of what NOT to write:**
+> Li Jingwen leaves her Chengdu apartment in a floor-length hanfu robe. Cloud patterns. Sleeves that catch the wind. People stare.
+
+**EXAMPLE of how a real CNN reporter would open the same idea:**
+> Li Jingwen, a 28-year-old software engineer in Chengdu, has been wearing traditional Han Chinese clothing — known as hanfu — to work and on weekends for nearly four years, drawing curious stares from neighbors who often assume she is on her way to a costume party or a film shoot.
+
+Notice: one long sentence with commas and embedded clarification, no fragments, no rhythmic punch.
+
+**Quote rules — CRITICAL:**
+- Quotes must sound REAL. Not punchy. Not TED-talk-quotable. Include hesitation, filler, slight grammar quirks if speaker is non-native English.
+- Bad (AI): "It's not a costume. It's how I show respect for the year."
+- Good (real): "Of course there are people who join the trend only during the Lunar New Year – but for most people, it isn't just because of the festival."
+- Use bracket clarifications inside quotes when needed: "[The rise of X] is important because..."
+- Multiple sources from different roles + locations. Always give name + role + city/province/country.
+
+**Source attribution:**
+- Cite REAL named publications and surveys. ${publication === 'CNN Travel' ? 'Use real outlets: state media, China Youth Daily, Xinhua, Reuters, AP, Xiaohongshu surveys, Taobao data.' : 'Use real outlets and named studies.'}
+- Do NOT invent sources like "X Industry Association" or "according to iiMedia".
+- If you do not have a real cited statistic, OMIT the number rather than fabricate it.
+- Include institutional self-reference where natural: "tells ${publication}", "${publication} reported in 2019 that..."
+
+**Structure:**
+- ${publication === 'CNN Travel' ? 'Subsection headers ARE allowed and used in real CNN articles (e.g. "Tourist attractions come alive", "Embracing tradition"). Use 2-3 short ## headers to break the article into sections.' : 'Use subsection ## headers if the corpus example uses them.'}
+- Plain reporter voice. Wide-scope geographic spread (multiple cities, multiple sources). Not narrow narrative.
+- Open with a soft hypothetical or scene-setter, not a manufactured punch.
+- End with a plain quote or a flat fact. NOT a cinematic image. NOT a rhetorical flourish.
+
+**Banned AI phrases:**
+- "In conclusion", "It is worth noting", "Delve into", "tapestry", "testament to", "Picture this", "Imagine this", "What follows is", "it's worth remembering", "at the end of the day", "the truth is".
+
+## Non-Negotiable
+- Write a complete article. Do NOT stop mid-article.
+- Never invent facts, quotes, names, dates, biographical details, or statistics. If you need data and have none, omit.
+- Mirror the voice of the corpus examples above exactly. They are the ground truth.
+- Reads like wire-service journalism, not literary essay. Slightly boring is correct. Slightly institutional is correct.`;
+}
+
+export async function generateArticle(topic: string, opts: GenerateOptions = {}, personaId: string = 'colin'): Promise<ReadableStream> {
+  // Route by persona. Colin keeps existing pipeline (style profile + skeletons + feedback + taxonomy).
+  // Other personas use generic prompt builder grounded in their own corpus.
+  if (personaId !== 'colin') {
+    return generateGenericArticle(topic, opts, personaId);
+  }
+
   const styleProfile = loadStyleProfile();
   const articles = loadArticles();
   const feedbackPrompt = await buildFeedbackPrompt();
@@ -265,7 +385,72 @@ export async function generateArticle(topic: string, opts: GenerateOptions = {})
       { role: 'system', content: systemPrompt },
       {
         role: 'user',
-        content: `Write a complete article about: ${topic.replace(/\b\d+\b/g, '').replace(/\s+/g, ' ').trim()}\n\nCRITICAL FORMATTING CHECK: Your output must contain ZERO lines that look like this: **Word** or ## Word or ### Word or *Word* on their own line before a paragraph. If you are about to write "**Chilli Oil**" or "## Mayonnaise" as a standalone line, STOP. Instead write: "Chilli oil is one of those things..." as a plain prose sentence. This is the single most important rule.\n\nFollow the structural skeleton exactly. Write the full article from start to finish. Do not stop early.${sourceReminder}`,
+        content: `Write a complete article about: ${topic.replace(/\b\d+\b/g, '').replace(/\s+/g, ' ').trim()}\n\nCRITICAL FORMATTING CHECK: Your output must contain ZERO lines starting with "##", "###", "**", or "*". Bold and italic are banned. Markdown headings are banned. The ONLY allowed standalone line that is not prose is a plain-text item-name line in the lifestyle-guide genre — sentence-cased ("Danish dough whisk"), no bold, no italic, no heading marker.\n\nPRE-FLIGHT SELF-CHECK before you start writing: scan your planned phrasing for "understood this instinctively", "the truth is,", "at its core", "here's the thing", "tremendous disservice", "it's worth noting", "none of this is to say", "operates on a similar principle", "we've been conditioned". If any of these are in your mental draft, rewrite that thought without them BEFORE you output it.\n\nFollow the structural skeleton exactly. Write the full article from start to finish. Do not stop early.${sourceReminder}`,
+      },
+    ],
+  });
+
+  return new ReadableStream({
+    async start(controller) {
+      for await (const chunk of stream) {
+        const text = chunk.choices[0]?.delta?.content ?? '';
+        if (text) controller.enqueue(new TextEncoder().encode(text));
+      }
+      controller.close();
+    },
+  });
+}
+
+// ── Generic persona generator ────────────────────────────────────────────────
+async function generateGenericArticle(topic: string, opts: GenerateOptions, personaId: string): Promise<ReadableStream> {
+  const persona = getPersona(personaId);
+  const articles = loadArticles(personaId);
+  const styleProfile = loadStyleProfile(personaId);
+
+  // Pick 2 corpus examples: one topic-matched (if available), one as a structural diversifier.
+  // Two examples lets the model triangulate the voice instead of over-fitting to a single article.
+  const validArticles = articles.filter(a => {
+    const wc = a.full_text.split(/\s+/).length;
+    return wc > 200 && wc < 2500;
+  });
+  const topicWords = topic.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(w => w.length > 3);
+  const matched = validArticles.find(a =>
+    topicWords.some(w => a.slug.includes(w) || a.title.toLowerCase().includes(w))
+  );
+  // Pick 2 medium-length examples — diverse from each other
+  const picks: typeof validArticles = [];
+  if (matched) picks.push(matched);
+  for (const a of validArticles) {
+    if (picks.length >= 2) break;
+    if (!picks.includes(a)) picks.push(a);
+  }
+
+  const corpusExamples = picks
+    .map((a, i) => `### Example ${i + 1}: "${a.title}"\n\n${a.full_text}`)
+    .join('\n\n---\n\n');
+
+  const systemPrompt = buildGenericSystemPrompt({
+    personaName: persona.name,
+    publication: persona.publication ?? persona.label,
+    styleProfile,
+    corpusExamples,
+    sourceNotes: opts.sourceNotes,
+  });
+
+  const sourceReminder = opts.sourceNotes?.trim()
+    ? `\n\nIMPORTANT: Use the Source Material provided in the system prompt. Do not invent any facts or details not present there.`
+    : '';
+
+  const stream = await getClient().chat.completions.create({
+    model: 'anthropic/claude-sonnet-4-5',
+    max_tokens: 3500,
+    temperature: 0.7,  // Lower than Colin (0.85) — CNN voice is institutional, not literary; less creative variance.
+    stream: true,
+    messages: [
+      { role: 'system', content: systemPrompt },
+      {
+        role: 'user',
+        content: `Write a complete ${persona.publication ?? 'feature'} article about: ${topic.replace(/\s+/g, ' ').trim()}\n\nMirror the boring, institutional, slightly-loose voice of the corpus examples. Use long comma-laden sentences. No two-word emphatic paragraphs. No scene-painting closers. Real cited sources only — no invented "associations" or "industry data". End plainly on a quote or stated fact, not on a cinematic image.${sourceReminder}`,
       },
     ],
   });

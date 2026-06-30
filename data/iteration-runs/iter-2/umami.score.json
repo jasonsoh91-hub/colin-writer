@@ -1,0 +1,75 @@
+{
+  "colinAvgWordCount": 969,
+  "colinAvgSentenceLength": 26,
+  "article": {
+    "wordCount": 975,
+    "sentenceCount": 45,
+    "avgSentenceLength": 22,
+    "paragraphCount": 10,
+    "avgParagraphLength": 98,
+    "colinPhrasesFound": [
+      "of course,",
+      "you'll find",
+      "have you ever wondered",
+      "now you might be thinking",
+      "in a way",
+      "neurological sleight of hand",
+      "ingenious trickery",
+      "perfumes",
+      "doesn't announce itself",
+      "that has to count for something"
+    ],
+    "genericPhrasesFound": [
+      "understood this instinctively"
+    ],
+    "startsWithHook": true,
+    "hasHistoricalRef": true,
+    "hasCulturalRef": true
+  },
+  "textStyleScore": 80,
+  "avgRating": 6.625,
+  "ratingTrend": [
+    {
+      "review": 1,
+      "rating": 4,
+      "label": "Laksa: A Whole Country On A Spoon"
+    },
+    {
+      "review": 2,
+      "rating": 6,
+      "label": "Laksa: A Whole Country On A Spoon"
+    },
+    {
+      "review": 3,
+      "rating": 7,
+      "label": "Laksa: A Whole Country On A Spoon"
+    },
+    {
+      "review": 4,
+      "rating": 8,
+      "label": "Laksa: A Whole Country On A Spoon"
+    },
+    {
+      "review": 5,
+      "rating": 7,
+      "label": "Laksa: A Whole Country On A Spoon"
+    },
+    {
+      "review": 6,
+      "rating": 8,
+      "label": "Laksa: A Whole Country On A Spoon"
+    },
+    {
+      "review": 7,
+      "rating": 6,
+      "label": "Forget The Gadgets: These Are The Kitchen Tools You Need"
+    },
+    {
+      "review": 8,
+      "rating": 7,
+      "label": "Coconut Milk: Why Fresh Beats Canned Every Time"
+    }
+  ],
+  "totalReviews": 8,
+  "overallSimilarity": 72
+}

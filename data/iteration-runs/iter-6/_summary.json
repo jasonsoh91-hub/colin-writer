@@ -1,0 +1,94 @@
+{
+  "runLabel": "iter-6",
+  "avg": 89,
+  "results": [
+    {
+      "id": "olive-oil",
+      "topic": "All About Olive Oil",
+      "genre": "gastronomic-curiosity",
+      "reference": "all-about-butter",
+      "wordCount": 1056,
+      "textStyleScore": 87,
+      "colinAvgWordCount": 969,
+      "colinAvgSentenceLength": 26,
+      "metrics": {
+        "wordCount": 1056,
+        "sentenceCount": 47,
+        "avgSentenceLength": 22,
+        "paragraphCount": 10,
+        "avgParagraphLength": 106,
+        "colinPhrasesFound": [
+          "having said that",
+          "you'll find",
+          "in a way",
+          "slap a cover on this",
+          "call it a book",
+          "an expensive chew toy"
+        ],
+        "genericPhrasesFound": [],
+        "startsWithHook": true,
+        "hasHistoricalRef": true,
+        "hasCulturalRef": false
+      },
+      "outputFile": "/Users/jason.soh/colin-writer/data/iteration-runs/iter-6/olive-oil.md"
+    },
+    {
+      "id": "pantry-staples",
+      "topic": "The Pantry Staples Every Home Cook Actually Needs",
+      "genre": "lifestyle-guide",
+      "reference": "kitchen-tools-you-need",
+      "wordCount": 872,
+      "textStyleScore": 86,
+      "colinAvgWordCount": 969,
+      "colinAvgSentenceLength": 26,
+      "metrics": {
+        "wordCount": 872,
+        "sentenceCount": 37,
+        "avgSentenceLength": 24,
+        "paragraphCount": 6,
+        "avgParagraphLength": 145,
+        "colinPhrasesFound": [
+          "that has to count for something",
+          "picture this:"
+        ],
+        "genericPhrasesFound": [],
+        "startsWithHook": true,
+        "hasHistoricalRef": false,
+        "hasCulturalRef": false
+      },
+      "outputFile": "/Users/jason.soh/colin-writer/data/iteration-runs/iter-6/pantry-staples.md"
+    },
+    {
+      "id": "umami",
+      "topic": "How Umami Actually Works: The Science Of The Fifth Taste",
+      "genre": "debunking-explainer",
+      "reference": "how-capsaicin-works",
+      "wordCount": 1116,
+      "textStyleScore": 95,
+      "colinAvgWordCount": 969,
+      "colinAvgSentenceLength": 26,
+      "metrics": {
+        "wordCount": 1116,
+        "sentenceCount": 45,
+        "avgSentenceLength": 25,
+        "paragraphCount": 10,
+        "avgParagraphLength": 112,
+        "colinPhrasesFound": [
+          "of course,",
+          "all manner of",
+          "you'll find",
+          "have you ever wondered",
+          "now you might be thinking",
+          "in a way",
+          "neurological sleight of hand",
+          "doesn't announce itself"
+        ],
+        "genericPhrasesFound": [],
+        "startsWithHook": true,
+        "hasHistoricalRef": true,
+        "hasCulturalRef": true
+      },
+      "outputFile": "/Users/jason.soh/colin-writer/data/iteration-runs/iter-6/umami.md"
+    }
+  ]
+}

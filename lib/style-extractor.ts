@@ -10,9 +10,9 @@ function getClient() {
   });
 }
 
-export async function extractStyleProfile(): Promise<string> {
-  const articles = loadArticles();
-  if (articles.length === 0) throw new Error('No articles found. Run scraper first.');
+export async function extractStyleProfile(personaId: string = 'colin'): Promise<string> {
+  const articles = loadArticles(personaId);
+  if (articles.length === 0) throw new Error(`No articles found for persona '${personaId}'. Run scraper first.`);
 
   // Use up to 40 articles, 2000 chars each — stays under free tier token limit
   const corpus = articles
@@ -20,13 +20,17 @@ export async function extractStyleProfile(): Promise<string> {
     .map(a => `### ${a.title}\n\n${a.full_text.slice(0, 2000)}`)
     .join('\n\n---\n\n');
 
+  const personaContext = personaId === 'colin'
+    ? 'all written by Colin Gomez, Features Editor at Palate Asia'
+    : `all from the ${articles[0]?.publication ?? personaId} corpus`;
+
   const response = await getClient().chat.completions.create({
     model: 'nvidia/nemotron-3-super-120b-a12b:free',
     max_tokens: 3000,
     messages: [
       {
         role: 'user',
-        content: `You are a literary analyst specialising in food and lifestyle journalism. Analyse the following ${articles.length} articles all written by Colin Gomez, Features Editor at Palate Asia, and extract a HIGHLY DETAILED writing style guide that an AI could use to write indistinguishably from him.
+        content: `You are a literary analyst specialising in editorial and feature journalism. Analyse the following ${articles.length} articles ${personaContext}, and extract a HIGHLY DETAILED writing style guide that an AI could use to write indistinguishably in this voice.
 
 Cover ALL of the following sections with concrete quoted examples from the text:
 
@@ -92,15 +96,20 @@ ${corpus}`,
 
   const profile = response.choices[0]?.message?.content ?? '';
 
-  const outputPath = path.join(process.cwd(), 'data', 'colin-style-profile.md');
+  const outputPath = personaId === 'colin'
+    ? path.join(process.cwd(), 'data', 'colin-style-profile.md')
+    : path.join(process.cwd(), 'data', 'personas', personaId, 'profile.md');
+  fs.mkdirSync(path.dirname(outputPath), { recursive: true });
   fs.writeFileSync(outputPath, profile);
   console.log(`Style profile saved to ${outputPath}`);
 
   return profile;
 }
 
-export function loadStyleProfile(): string {
-  const filepath = path.join(process.cwd(), 'data', 'colin-style-profile.md');
+export function loadStyleProfile(personaId: string = 'colin'): string {
+  const filepath = personaId === 'colin'
+    ? path.join(process.cwd(), 'data', 'colin-style-profile.md')
+    : path.join(process.cwd(), 'data', 'personas', personaId, 'profile.md');
   if (!fs.existsSync(filepath)) return '';
   return fs.readFileSync(filepath, 'utf-8');
 }

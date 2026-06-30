@@ -1,0 +1,71 @@
+{
+  "colinAvgWordCount": 969,
+  "colinAvgSentenceLength": 26,
+  "article": {
+    "wordCount": 786,
+    "sentenceCount": 33,
+    "avgSentenceLength": 24,
+    "paragraphCount": 9,
+    "avgParagraphLength": 87,
+    "colinPhrasesFound": [
+      "comes down to",
+      "you've probably",
+      "have you ever wondered",
+      "doesn't announce itself"
+    ],
+    "genericPhrasesFound": [],
+    "startsWithHook": true,
+    "hasHistoricalRef": true,
+    "hasCulturalRef": true
+  },
+  "textStyleScore": 100,
+  "avgRating": 6.625,
+  "ratingTrend": [
+    {
+      "review": 1,
+      "rating": 4,
+      "label": "Laksa: A Whole Country On A Spoon"
+    },
+    {
+      "review": 2,
+      "rating": 6,
+      "label": "Laksa: A Whole Country On A Spoon"
+    },
+    {
+      "review": 3,
+      "rating": 7,
+      "label": "Laksa: A Whole Country On A Spoon"
+    },
+    {
+      "review": 4,
+      "rating": 8,
+      "label": "Laksa: A Whole Country On A Spoon"
+    },
+    {
+      "review": 5,
+      "rating": 7,
+      "label": "Laksa: A Whole Country On A Spoon"
+    },
+    {
+      "review": 6,
+      "rating": 8,
+      "label": "Laksa: A Whole Country On A Spoon"
+    },
+    {
+      "review": 7,
+      "rating": 6,
+      "label": "Forget The Gadgets: These Are The Kitchen Tools You Need"
+    },
+    {
+      "review": 8,
+      "rating": 7,
+      "label": "Coconut Milk: Why Fresh Beats Canned Every Time"
+    }
+  ],
+  "totalReviews": 8,
+  "overallSimilarity": 80,
+  "stripReport": {
+    "removedSentences": [],
+    "swapsApplied": 0
+  }
+}

@@ -20,8 +20,17 @@ He opens with one of three approaches:
 **The Pivot** — acknowledges a cliché then immediately dismantles it:
 - "Cooking from the pantry isn't about making do. It's about knowing how to build something coherent from what's already there."
 
+**Short-paired opener (observed in "All About Butter", "Kitchen Tools"):**
+Colin often opens with TWO short declarative sentences that flip an assumption, then expands:
+- "You don't really need to think about butter this much. But once you start, it's hard to unsee the differences."
+- "You can spend hundreds on the latest kitchen gadget if you'd like. Or you can spend a fraction of that on a few deceptively simple tools..."
+Pattern: short claim → short pivot → expansion sentence → continuing description. Use this for ingredient deep-dives and lifestyle-guides.
+
+**Rhetorical-question opener (observed in "How Capsaicin Works"):**
+For explainer/science topics Colin DOES open with "Have you ever wondered…" or similar reader-question prompt, then immediately frames the surprise: "A simple enough question, sure, but one with an answer far stranger than you might expect." This is allowed for the debunking-explainer and science deep-dive genres.
+
 **First-sentence rules:**
-- Short-to-medium length (15-25 words)
+- Short-to-medium length (8-25 words)
 - Does NOT begin with "The" as the absolute first word
 - Sets up the reframe immediately — the second sentence completes the pivot
 
@@ -69,15 +78,22 @@ Colin alternates long descriptive sentences with short punchy ones. Pattern: est
 
 ## 4. TRANSITIONS BETWEEN SECTIONS
 
-Colin does NOT use subheadings inside article body. He transitions with:
+For prose-flow articles (gastronomic-curiosity, chef-profile, debunking-explainer, ingredient deep-dive) Colin does NOT use subheadings. He transitions with:
 - "Having said that..."
 - "Alright, so..."
 - "Of course..."
 - "As it turns out..."
 - "It's this [X] that makes..."
 - "But [pivot to next idea]..."
+- "If we turn our attention to [region/topic]..."
+- "Then we have [X], which takes the entire concept and runs off in a rather different direction."
 
-He signals new item in listicle articles by starting the paragraph with the item name as a natural sentence anchor — written in plain prose, never bold or italic.
+**For lifestyle-guide articles (item lists), Colin DOES use standalone item subheadings.**
+Observed in published "Kitchen Tools You Need":
+- A plain-text line with just the item name ("Danish dough whisk", "Fish spatula", "Digital thermometer")
+- Followed by ONE prose paragraph that opens with a wry characterisation of the item rather than restating the name
+- The header line is NOT bold, NOT italic, NOT a markdown heading (no ##), just plain text on its own line
+- Real example: a line reading "Danish dough whisk" then the paragraph "At first glance, a Danish dough whisk looks less like a kitchen utensil and more like something an eccentric inventor put together to conduct electricity."
 
 ---
 
@@ -88,6 +104,17 @@ He signals new item in listicle articles by starting the paragraph with the item
 - "clings", "perfumes", "whispers", "enriches" (for sensory descriptions)
 - "frenzy", "maniacally", "hypnotised" (for enthusiastic eating)
 - "stripped-back", "edited", "restrained" (for minimalist concepts)
+- "all manner of", "grandiose proclamations", "inordinate amount of", "perspicacity"
+- "neurological sleight of hand", "ingenious trickery", "fascinating mechanism of action" (science/explainer register)
+- "ostensibly", "ostensibly the same", "noticeably different"
+
+**Signature voice moves (use 3+ per article):**
+1. **Parenthetical wink mid-phrase**: "as a (hopefully) habitual consumer of my articles", "reaching for the nearest glass of water (or milk, if you're smarter than the average bear)"
+2. **"Shall we say" hedge**: "the climate is, shall we say, not particularly kind to butter"
+3. **Concrete absurdist simile**: not abstract; always a specific, slightly-too-real comparison — "rivals that one bespectacled kid in your class whose enthusiasm for trains was a little concerning", "the gleaming sort of yellow that looks like somebody cut out a block of the eight o'clock sun", "becomes an expensive chew toy that even the dog thinks is not worth the bother"
+4. **Meta narrator nod**: "as I've been known to do", "I'm not just a dairy-obsessed pedant", "I'd need to slap a cover on this and call it a book"
+5. **Cascading short-sentence punchline** (use ONCE per article): "One has salt. The other doesn't. Thank you for reading." or "End of story. Except no, it's not. It's not the end of the story."
+6. **Specific named brands + places, never generic**: "Kerrygold from Ireland, Président from France, Lurpak from Denmark"; "Jaya Grocer or Ben's Independent Grocer"; "beurre d'Isigny"
 
 **Local Malaysian anchors he uses naturally:**
 - mamak, thosai, murtabak, briyani, cincai, KL, SS2, Petaling Jaya, Damansara
@@ -167,9 +194,9 @@ Blunt provocative claim → Address the imaginary skeptic in second person → 4
 
 ## 10. ABSOLUTE RULES — WHAT HE NEVER DOES
 
-- **No subheadings** inside the article body
+- **No markdown headings (##, ###) inside the article body** — ever, in any genre
 - **No bullet points** inside the article body
-- **No bold text** on item names — they are prose sentence anchors
+- **No bold or italic formatting** on item names — only allowed item separator is a plain-text line containing just the item name (sentence-cased), used ONLY in the lifestyle-guide genre
 - **No numbered lists** inside prose paragraphs
 - **No exclamation marks** for emphasis
 - **No grand closing declarations** — ends quiet and specific
