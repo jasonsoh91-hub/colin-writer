@@ -80,6 +80,7 @@ export async function POST(req: NextRequest) {
         metrics: sim.article,
         droppedSentenceCount: stripReport.removedSentences.length,
         prefixStrippedCount: stripReport.prefixStrippedSentences.length,
+        articleText: polished,
         metadata: { hasResearch: researchSources.length > 0 },
       }).catch(() => {});
     } catch {

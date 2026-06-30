@@ -63,10 +63,18 @@ function timeAgo(iso: string): string {
   return `${d}d ago`;
 }
 
+type FullRun = Partial<TrainingRunRow> & {
+  id: string;
+  article_text?: string | null;
+  metadata?: Record<string, unknown> | null;
+};
+
 export default function TrainingPage() {
   const [data, setData] = useState<StatsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selected, setSelected] = useState<FullRun | null>(null);
+  const [selectedLoading, setSelectedLoading] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -82,9 +90,32 @@ export default function TrainingPage() {
     }
   }
 
+  async function openRun(id: string) {
+    setSelectedLoading(true);
+    setSelected({ id } as FullRun);
+    try {
+      const res = await fetch(`/api/training-run/${id}`, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const row = await res.json();
+      setSelected(row);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+      setSelected(null);
+    } finally {
+      setSelectedLoading(false);
+    }
+  }
+
   useEffect(() => {
     load();
   }, []);
+
+  useEffect(() => {
+    if (!selected) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setSelected(null); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [selected]);
 
   const ceiling = data?.ceiling;
   const stats = data?.stats;
@@ -259,11 +290,12 @@ export default function TrainingPage() {
                 {stats.recent.length === 0 ? (
                   <div className="text-[#555] text-sm">No data yet.</div>
                 ) : (
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     {stats.recent.map(r => (
-                      <div
+                      <button
                         key={r.id}
-                        className="flex items-center justify-between gap-3 py-2 border-b border-[#1a1a1a] last:border-0"
+                        onClick={() => openRun(r.id)}
+                        className="w-full flex items-center justify-between gap-3 py-2 px-2 -mx-2 rounded border-b border-[#1a1a1a] last:border-0 text-left hover:bg-[#161616] transition"
                       >
                         <div className="min-w-0 flex-1">
                           <p className="text-sm text-white truncate">{r.topic}</p>
@@ -281,7 +313,7 @@ export default function TrainingPage() {
                         >
                           {r.text_style_score}%
                         </span>
-                      </div>
+                      </button>
                     ))}
                   </div>
                 )}
@@ -294,6 +326,76 @@ export default function TrainingPage() {
           </>
         )}
       </div>
+
+      {/* Article modal */}
+      {selected && (
+        <div
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-start justify-center p-4 sm:p-8 overflow-y-auto"
+          onClick={() => setSelected(null)}
+        >
+          <div
+            className="bg-[#0d0d0d] border border-[#2a2a2a] rounded-xl max-w-3xl w-full my-8 max-h-[90vh] flex flex-col"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-3 p-6 border-b border-[#1a1a1a]">
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] uppercase tracking-widest text-[#c8a84b] mb-1">
+                  {selected.genre ?? 'no-genre'} · {selected.created_at && timeAgo(selected.created_at)}
+                </p>
+                <h2 className="text-xl font-semibold text-white truncate">
+                  {selected.topic ?? 'Loading…'}
+                </h2>
+                {selected.text_style_score !== undefined && (
+                  <p className="text-xs text-[#888] mt-2">
+                    <span className="font-bold tabular-nums" style={{ color: scoreColor(selected.text_style_score) }}>
+                      {selected.text_style_score}%
+                    </span>{' '}
+                    similarity · {selected.word_count}w
+                    {selected.raw_word_count && selected.raw_word_count !== selected.word_count &&
+                      ` (raw: ${selected.raw_word_count}w)`}
+                    {(selected.dropped_sentence_count ?? 0) + (selected.prefix_stripped_count ?? 0) > 0 &&
+                      ` · ${selected.dropped_sentence_count ?? 0} dropped · ${selected.prefix_stripped_count ?? 0} prefix-stripped`}
+                    {' · '}
+                    {selected.colin_phrases_found ?? 0} Colin phrases
+                    {(selected.generic_phrases_found ?? 0) > 0 && ` · ${selected.generic_phrases_found} generic`}
+                  </p>
+                )}
+              </div>
+              <button
+                onClick={() => setSelected(null)}
+                className="text-[#666] hover:text-white text-xl leading-none px-2"
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="overflow-y-auto p-6">
+              {selectedLoading || !selected.article_text ? (
+                <div className="text-center py-12 text-[#666] text-sm">
+                  {selectedLoading ? 'Loading article…' : 'No article body stored for this run (older row).'}
+                </div>
+              ) : (
+                <div className="prose prose-invert prose-sm max-w-none whitespace-pre-wrap text-[#ddd] leading-relaxed">
+                  {selected.article_text}
+                </div>
+              )}
+            </div>
+
+            <div className="p-4 border-t border-[#1a1a1a] flex justify-between items-center text-[10px] text-[#555]">
+              <span>Esc to close</span>
+              {selected.article_text && (
+                <button
+                  onClick={() => navigator.clipboard.writeText(selected.article_text ?? '')}
+                  className="px-2 py-1 border border-[#333] rounded text-[#888] hover:text-white hover:border-[#c8a84b]/40 transition"
+                >
+                  Copy article
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -25,6 +25,7 @@ export interface TrainingRunInput {
   metrics: ArticleMetrics;
   droppedSentenceCount: number;
   prefixStrippedCount: number;
+  articleText?: string;
   metadata?: Record<string, unknown>;
 }
 
@@ -45,6 +46,7 @@ export async function logTrainingRun(input: TrainingRunInput): Promise<void> {
       has_cultural_ref: input.metrics.hasCulturalRef,
       dropped_sentence_count: input.droppedSentenceCount,
       prefix_stripped_count: input.prefixStrippedCount,
+      article_text: input.articleText ?? null,
       metadata: input.metadata ?? null,
     });
     if (error) console.warn('[training-log] insert failed:', error.message);
@@ -66,14 +68,16 @@ export interface TrainingRunRow {
   generic_phrases_found: number;
   dropped_sentence_count: number;
   prefix_stripped_count: number;
+  article_text?: string | null;
 }
 
-export async function getRecentRuns(limit = 50, persona = 'colin'): Promise<TrainingRunRow[]> {
+export async function getRecentRuns(limit = 50, persona = 'colin', includeText = false): Promise<TrainingRunRow[]> {
   const sb = getSupabase();
   if (!sb) return [];
+  const cols = 'id, created_at, topic, persona, genre, word_count, raw_word_count, text_style_score, colin_phrases_found, generic_phrases_found, dropped_sentence_count, prefix_stripped_count' + (includeText ? ', article_text' : '');
   const { data, error } = await sb
     .from('colin_training_runs')
-    .select('id, created_at, topic, persona, genre, word_count, raw_word_count, text_style_score, colin_phrases_found, generic_phrases_found, dropped_sentence_count, prefix_stripped_count')
+    .select(cols)
     .eq('persona', persona)
     .order('created_at', { ascending: false })
     .limit(limit);
@@ -81,7 +85,22 @@ export async function getRecentRuns(limit = 50, persona = 'colin'): Promise<Trai
     console.warn('[training-log] select failed:', error.message);
     return [];
   }
-  return (data ?? []) as TrainingRunRow[];
+  return (data ?? []) as unknown as TrainingRunRow[];
+}
+
+export async function getRunById(id: string): Promise<TrainingRunRow | null> {
+  const sb = getSupabase();
+  if (!sb) return null;
+  const { data, error } = await sb
+    .from('colin_training_runs')
+    .select('*')
+    .eq('id', id)
+    .single();
+  if (error) {
+    console.warn('[training-log] select-one failed:', error.message);
+    return null;
+  }
+  return data as TrainingRunRow;
 }
 
 export interface TrainingStats {
