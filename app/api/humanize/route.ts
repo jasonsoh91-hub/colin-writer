@@ -43,7 +43,7 @@ function getClient() {
 }
 
 export const runtime = 'nodejs';
-export const maxDuration = 600;  // v3 CNN humanize loops up to 4 model passes × ~60s each
+export const maxDuration = 300;  // hobby plan max; CNN humanize loops may need pro plan (600s) for full passes
 
 const TARGET_SCORE = 35;
 const MAX_PASSES = 3;
