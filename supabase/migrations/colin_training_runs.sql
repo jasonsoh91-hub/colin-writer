@@ -45,3 +45,10 @@ create policy "anon read training runs"
   on public.colin_training_runs for select
   to anon
   using (true);
+
+drop policy if exists "anon update training runs" on public.colin_training_runs;
+create policy "anon update training runs"
+  on public.colin_training_runs for update
+  to anon
+  using (true)
+  with check (true);
