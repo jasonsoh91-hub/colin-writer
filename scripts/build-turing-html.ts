@@ -465,6 +465,82 @@ const HTML = `<!doctype html>
     cursor: pointer;
   }
   .restart:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* Loop diagram */
+  .loop {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    align-items: stretch;
+    gap: 0;
+    margin: 24px 0 8px;
+    position: relative;
+  }
+  @media (max-width: 900px) { .loop { grid-template-columns: 1fr; } }
+  .loop-step {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 14px;
+    text-align: center;
+    position: relative;
+    margin: 0 6px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 148px;
+  }
+  .loop-step .num {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: rgba(200,168,75,0.15);
+    color: var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+    margin: 0 auto 10px;
+  }
+  .loop-step .name {
+    font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--gold); font-weight: 600; margin-bottom: 6px;
+  }
+  .loop-step .caption { font-size: 12px; color: var(--muted); margin-bottom: 12px; line-height: 1.4; }
+  .loop-step .stat {
+    font-size: 26px; font-weight: 700; color: #fff; line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .loop-step .stat-lbl { font-size: 10px; color: var(--dim); letter-spacing: 1.5px; text-transform: uppercase; margin-top: 4px; }
+  .loop-arrow {
+    display: flex; align-items: center; justify-content: center;
+    color: var(--gold); font-size: 20px; opacity: 0.6;
+    position: absolute; top: 50%; transform: translateY(-50%);
+    pointer-events: none;
+  }
+  @media (max-width: 900px) { .loop-arrow { display: none; } }
+  .loop-return {
+    text-align: center; margin-top: 12px;
+    color: var(--dim); font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  }
+  .loop-return::before {
+    content: '↑ Regenerates with every review — the loop compounds ↑';
+    display: block;
+    color: var(--gold); opacity: 0.75;
+    font-style: normal;
+  }
+  .how-wrap {
+    max-width: 1100px; margin: 0 auto; text-align: center;
+    padding: 20px 0;
+  }
+  .how-wrap h2 {
+    font-size: clamp(28px, 4vw, 44px); margin: 20px 0 8px;
+    font-weight: 600; letter-spacing: -0.01em;
+    background: linear-gradient(135deg, #fff 0%, var(--gold) 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .how-wrap .sub {
+    font-size: 16px; color: var(--muted); max-width: 700px; margin: 0 auto 30px; line-height: 1.6;
+  }
+  .how-wrap .footnote {
+    color: var(--dim); font-size: 12px; margin-top: 24px; line-height: 1.6;
+    max-width: 720px; margin-left: auto; margin-right: auto;
+  }
 </style>
 </head>
 <body>
@@ -494,7 +570,54 @@ const HTML = `<!doctype html>
         <li>The correct answer is revealed after each round. Score is tracked to the end.</li>
       </ol>
     </div>
-    <button class="cta" onclick="startTest()">Begin Round 1</button>
+    <button class="cta" onclick="showSlide('how-it-works'); loadStats();">Next</button>
+  </div>
+</section>
+
+<!-- HOW IT WORKS / LIVE LOOP -->
+<section class="slide" id="how-it-works">
+  <div class="how-wrap">
+    <div class="brand" style="color: var(--gold); font-size: 12px; letter-spacing: 4px; text-transform: uppercase;">How the AI Learns</div>
+    <h2>A closed feedback loop</h2>
+    <div class="sub">The AI Colin you're about to test isn't a static model. Every article it writes is scored, every human review it receives is fed back into the next generation's prompt. Numbers below are live.</div>
+
+    <div class="loop">
+      <div class="loop-step">
+        <div class="num">1</div>
+        <div class="name">Write</div>
+        <div class="caption">AI generates on topic + genre</div>
+        <div><div class="stat" id="stat-write">—</div><div class="stat-lbl">articles</div></div>
+      </div>
+      <div class="loop-step">
+        <div class="num">2</div>
+        <div class="name">Track</div>
+        <div class="caption">Score + body persist to Supabase</div>
+        <div><div class="stat" id="stat-track">—</div><div class="stat-lbl">logged</div></div>
+      </div>
+      <div class="loop-step">
+        <div class="num">3</div>
+        <div class="name">Review</div>
+        <div class="caption">Human rates + critiques</div>
+        <div><div class="stat" id="stat-review">—</div><div class="stat-lbl">reviews</div></div>
+      </div>
+      <div class="loop-step">
+        <div class="num">4</div>
+        <div class="name">Learn</div>
+        <div class="caption">Last 8 reviews injected into system prompt</div>
+        <div><div class="stat" id="stat-learn">—</div><div class="stat-lbl">in loop</div></div>
+      </div>
+      <div class="loop-step">
+        <div class="num">5</div>
+        <div class="name">Apply</div>
+        <div class="caption">Model addresses critiques on next gen</div>
+        <div><div class="stat" id="stat-apply">—</div><div class="stat-lbl">avg similarity</div></div>
+      </div>
+    </div>
+    <div class="loop-return"></div>
+
+    <div class="footnote">Current fidelity numbers you're seeing reflect the state of the loop at page load. The AI you're testing has passed through this cycle for every article it's ever written.</div>
+
+    <button class="cta" style="margin-top: 32px;" onclick="startTest()">Begin Round 1</button>
   </div>
 </section>
 
@@ -528,6 +651,40 @@ function showSlide(id) {
   document.querySelectorAll('section.slide').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+async function loadStats() {
+  try {
+    const res = await fetch('/api/training-stats?persona=colin&limit=500', { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const total = data.stats?.totalRuns ?? 0;
+    const avg = data.stats?.rollingAvgLast10 ?? '—';
+    const reviews = data.stats?.recent ? data.stats.recent.length : 0;
+    // Feedback count isn't in the endpoint — approximate from stats OR hit a separate call.
+    // For now use rolling avg + total as the two live numbers we can show.
+    const el = (id, val) => { const n = document.getElementById(id); if (n) n.textContent = String(val); };
+    el('stat-write', total);
+    el('stat-track', total);
+    el('stat-review', '•');  // will be replaced below if endpoint returns it
+    el('stat-learn', 'last 8');
+    el('stat-apply', avg === '—' ? '—' : avg + '%');
+    // Try secondary fetch for feedback count
+    try {
+      const fb = await fetch('/api/feedback-count', { cache: 'no-store' });
+      if (fb.ok) {
+        const { count } = await fb.json();
+        el('stat-review', count);
+      } else {
+        el('stat-review', '—');
+      }
+    } catch { el('stat-review', '—'); }
+  } catch (e) {
+    console.warn('stats load failed', e);
+    ['stat-write','stat-track','stat-review','stat-apply'].forEach(id => {
+      const n = document.getElementById(id); if (n) n.textContent = '—';
+    });
+  }
 }
 
 function startTest() {

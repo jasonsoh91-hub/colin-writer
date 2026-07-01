@@ -52,6 +52,44 @@ function scoreColor(n: number | null | undefined): string {
   return '#f87171';
 }
 
+function LoopDiagram({ stats }: { stats: TrainingStats }) {
+  const [feedbackCount, setFeedbackCount] = useState<number | null>(null);
+  useEffect(() => {
+    fetch('/api/feedback-count').then(r => r.json()).then(d => setFeedbackCount(d.count ?? 0)).catch(() => setFeedbackCount(null));
+  }, []);
+  const steps = [
+    { n: '1', name: 'Write', caption: 'AI generates on topic + genre', stat: stats.totalRuns, lbl: 'articles' },
+    { n: '2', name: 'Track', caption: 'Score + body persist to Supabase', stat: stats.totalRuns, lbl: 'logged' },
+    { n: '3', name: 'Review', caption: 'Human rates + critiques', stat: feedbackCount ?? '—', lbl: 'reviews' },
+    { n: '4', name: 'Learn', caption: 'Last 8 reviews injected into prompt', stat: Math.min(feedbackCount ?? 0, 8), lbl: 'in loop' },
+    { n: '5', name: 'Apply', caption: 'Model addresses critiques on next gen', stat: stats.rollingAvgLast10 !== null ? `${stats.rollingAvgLast10}%` : '—', lbl: 'avg similarity' },
+  ];
+  return (
+    <div className="rounded-xl border border-[#2a2a2a] bg-[#0d0d0d] p-6 mb-6">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-sm font-medium text-[#aaa]">Feedback Loop · Live</h2>
+        <span className="text-[10px] text-[#666] uppercase tracking-widest">closed cycle</span>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-2">
+        {steps.map(s => (
+          <div key={s.n} className="rounded-lg border border-[#1a1a1a] bg-[#0a0a0a] p-4 text-center flex flex-col justify-between min-h-[130px]">
+            <div>
+              <div className="w-6 h-6 rounded-full bg-[#c8a84b]/15 text-[#c8a84b] flex items-center justify-center text-[11px] font-bold mx-auto mb-2">{s.n}</div>
+              <p className="text-[10px] uppercase tracking-widest text-[#c8a84b] font-semibold mb-1.5">{s.name}</p>
+              <p className="text-[11px] text-[#666] leading-snug mb-3">{s.caption}</p>
+            </div>
+            <div>
+              <div className="text-xl font-bold text-white tabular-nums">{s.stat}</div>
+              <div className="text-[9px] text-[#555] uppercase tracking-wider mt-0.5">{s.lbl}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <p className="text-[10px] text-[#c8a84b]/70 uppercase tracking-widest text-center mt-3">↑ Regenerates with every review — the loop compounds ↑</p>
+    </div>
+  );
+}
+
 function timeAgo(iso: string): string {
   const ms = Date.now() - new Date(iso).getTime();
   const min = Math.floor(ms / 60000);
@@ -168,6 +206,8 @@ export default function TrainingPage() {
 
         {data && stats && (
           <>
+            <LoopDiagram stats={stats} />
+
             {/* Top row — Rolling avg + Ceiling + Gap */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <div className="rounded-xl border border-[#c8a84b]/40 bg-gradient-to-br from-[#1a1a1a] to-[#0d0d0d] p-6">
