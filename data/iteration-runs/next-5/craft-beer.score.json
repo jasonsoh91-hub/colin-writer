@@ -1,0 +1,83 @@
+{
+  "colinAvgWordCount": 969,
+  "colinAvgSentenceLength": 26,
+  "article": {
+    "wordCount": 1132,
+    "sentenceCount": 51,
+    "avgSentenceLength": 22,
+    "paragraphCount": 11,
+    "avgParagraphLength": 103,
+    "colinPhrasesFound": [
+      "it's this",
+      "shall we say",
+      "you'll find",
+      "have you ever wondered",
+      "in a way",
+      "mamak"
+    ],
+    "genericPhrasesFound": [
+      "that's where things get interesting",
+      "i'm not suggesting"
+    ],
+    "startsWithHook": true,
+    "hasHistoricalRef": true,
+    "hasCulturalRef": true
+  },
+  "textStyleScore": 80,
+  "avgRating": 6.625,
+  "ratingTrend": [
+    {
+      "review": 1,
+      "rating": 4,
+      "label": "Laksa: A Whole Country On A Spoon"
+    },
+    {
+      "review": 2,
+      "rating": 6,
+      "label": "Laksa: A Whole Country On A Spoon"
+    },
+    {
+      "review": 3,
+      "rating": 7,
+      "label": "Laksa: A Whole Country On A Spoon"
+    },
+    {
+      "review": 4,
+      "rating": 8,
+      "label": "Laksa: A Whole Country On A Spoon"
+    },
+    {
+      "review": 5,
+      "rating": 7,
+      "label": "Laksa: A Whole Country On A Spoon"
+    },
+    {
+      "review": 6,
+      "rating": 8,
+      "label": "Laksa: A Whole Country On A Spoon"
+    },
+    {
+      "review": 7,
+      "rating": 6,
+      "label": "Forget The Gadgets: These Are The Kitchen Tools You Need"
+    },
+    {
+      "review": 8,
+      "rating": 7,
+      "label": "Coconut Milk: Why Fresh Beats Canned Every Time"
+    }
+  ],
+  "totalReviews": 8,
+  "overallSimilarity": 72,
+  "stripReport": {
+    "removedSentences": [],
+    "prefixStrippedSentences": [],
+    "swapsApplied": 0
+  },
+  "topicMeta": {
+    "id": "craft-beer",
+    "topic": "Inside The Rise Of Malaysian Craft Beer",
+    "genre": "gastronomic-curiosity",
+    "notes": "Regional beat + Colin's KL cultural anchor"
+  }
+}

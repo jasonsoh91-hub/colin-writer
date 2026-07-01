@@ -27,9 +27,14 @@ const DROP_SENTENCE_IF_CONTAINS = [
   "in today's world",
   "carefully considered",
   "suggest there might be",
+  "that's where things get interesting",
   // Double-negatives — too risky to prefix-strip (flips meaning)
   "none of this is to say",
   "none of this is to suggest",
+  // Self-disclaimer pattern — Colin doesn't pre-defend
+  "i'm not suggesting",
+  "i'm not claiming",
+  "i'm not advocating",
 ];
 
 // Prefix-strip patterns: regex matches a leading AI-tell phrase at the start
@@ -82,7 +87,8 @@ const SWAPS: [RegExp, string][] = [
   [/\bvibrant\b/gi, "alive"],
   [/\bbustling\b/gi, "busy"],
   [/\bpassionate\b/gi, "serious"],
-  [/\bdedicated\b/gi, "focused"],
+  // NOTE: "dedicated" → "focused" swap was making Sonnet produce "focused to"
+  // instead of "dedicated to" (grammatically wrong). Removed.
   [/\bundeniably\b/gi, ""],
   [/\bmoreover\b/gi, "and"],
   [/\bfurthermore\b/gi, "and"],
@@ -91,6 +97,8 @@ const SWAPS: [RegExp, string][] = [
   [/\bbreathtaking\b/gi, ""],
   [/\brenowned\b/gi, "well-known"],
   [/\bunderscore[sd]?\b/gi, "show"],
+  // "focused to" is a Sonnet-invented phrase; correct English is "dedicated to" / "of"
+  [/\bfocused to\b/gi, "dedicated to"],
 ];
 
 // Split a paragraph into sentences while preserving terminator + spacing.
@@ -155,8 +163,31 @@ export interface StripReport {
   swapsApplied: number;
 }
 
+// Remove any leading markdown title/bold line before the first prose paragraph.
+// Colin never publishes with "**Title**" or "# Title" at the top of the body.
+// Matches: "# X", "## X", "### X", "**X**", "*X*", or the same wrapped in blank
+// lines. Only touches the very top of the article — inline markdown is left alone.
+function stripLeadingTitleLines(text: string): string {
+  const lines = text.split('\n');
+  let i = 0;
+  while (i < lines.length) {
+    const l = lines[i].trim();
+    if (l === '') { i++; continue; }
+    const isMarkdownHeading = /^#{1,6}\s/.test(l);
+    const isFullBoldLine = /^\*\*[^*]+\*\*[.!?]?$/.test(l);
+    const isFullItalicLine = /^\*[^*]+\*[.!?]?$/.test(l);
+    if (isMarkdownHeading || isFullBoldLine || isFullItalicLine) {
+      i++;
+      continue;
+    }
+    break;
+  }
+  return lines.slice(i).join('\n').replace(/^\n+/, '');
+}
+
 export function stripColinSlips(text: string, report?: StripReport): string {
-  const paragraphs = text.split(/(\n+)/); // keep separators
+  const detitled = stripLeadingTitleLines(text);
+  const paragraphs = detitled.split(/(\n+)/); // keep separators
   const out: string[] = [];
   for (const seg of paragraphs) {
     if (/^\n+$/.test(seg)) {

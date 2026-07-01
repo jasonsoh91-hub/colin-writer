@@ -1,0 +1,78 @@
+{
+  "colinAvgWordCount": 969,
+  "colinAvgSentenceLength": 26,
+  "article": {
+    "wordCount": 979,
+    "sentenceCount": 39,
+    "avgSentenceLength": 25,
+    "paragraphCount": 10,
+    "avgParagraphLength": 98,
+    "colinPhrasesFound": [
+      "of course,",
+      "all manner of",
+      "you'll find",
+      "stripped-back"
+    ],
+    "genericPhrasesFound": [],
+    "startsWithHook": true,
+    "hasHistoricalRef": true,
+    "hasCulturalRef": true
+  },
+  "textStyleScore": 95,
+  "avgRating": 6.625,
+  "ratingTrend": [
+    {
+      "review": 1,
+      "rating": 4,
+      "label": "Laksa: A Whole Country On A Spoon"
+    },
+    {
+      "review": 2,
+      "rating": 6,
+      "label": "Laksa: A Whole Country On A Spoon"
+    },
+    {
+      "review": 3,
+      "rating": 7,
+      "label": "Laksa: A Whole Country On A Spoon"
+    },
+    {
+      "review": 4,
+      "rating": 8,
+      "label": "Laksa: A Whole Country On A Spoon"
+    },
+    {
+      "review": 5,
+      "rating": 7,
+      "label": "Laksa: A Whole Country On A Spoon"
+    },
+    {
+      "review": 6,
+      "rating": 8,
+      "label": "Laksa: A Whole Country On A Spoon"
+    },
+    {
+      "review": 7,
+      "rating": 6,
+      "label": "Forget The Gadgets: These Are The Kitchen Tools You Need"
+    },
+    {
+      "review": 8,
+      "rating": 7,
+      "label": "Coconut Milk: Why Fresh Beats Canned Every Time"
+    }
+  ],
+  "totalReviews": 8,
+  "overallSimilarity": 78,
+  "stripReport": {
+    "removedSentences": [],
+    "prefixStrippedSentences": [],
+    "swapsApplied": 0
+  },
+  "topicMeta": {
+    "id": "vinegar",
+    "topic": "All About Vinegar",
+    "genre": "gastronomic-curiosity",
+    "notes": "Ingredient deep-dive matching Colin's butter/coffee beat"
+  }
+}
