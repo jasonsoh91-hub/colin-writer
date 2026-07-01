@@ -123,14 +123,14 @@ const ROUNDS: Round[] = [
   },
   {
     n: 5,
-    category: 'The Twist — All Three Are AI',
+    category: 'Debunking Science',
     articles: [
       { label: 'A', body: AI.sourdough, source: 'AI — "How Sourdough Actually Rises" (next-5, score 84)' },
       { label: 'B', body: AI.fermentation, source: 'AI — "How Fermentation Actually Works" (turing-test, score 87)' },
       { label: 'C', body: AI.craftBeer, source: 'AI — "Malaysian Craft Beer" (next-5, score 80)' },
     ],
     answerIdx: -1,
-    explainer: 'All three are AI. This is what the pipeline produces on a bad day (sourdough close is formulaic, craft-beer reads like industry-analyst) and a good day (fermentation is tighter). Even the low-scoring generations pass casual reading. The remaining gap is subtle: Colin\'s specific-scene closes, his self-referential asides, his particular Malaysian anchors.',
+    explainer: 'All three were AI. There was no real Colin in this round. The pipeline produced these on the same run — the "worst" (craft-beer at 80) and the "best" (fermentation at 87) both read as plausibly human on a first pass. This is where voice fidelity is right now: even the low-scoring generations survive casual scrutiny.',
   },
 ];
 
@@ -140,7 +140,6 @@ function esc(s: string): string {
 }
 
 function renderRound(r: Round): string {
-  const isTrick = r.answerIdx === -1;
   return `
 <section class="round" data-round="${r.n}" data-answer="${r.answerIdx}" hidden>
   <div class="round-header">
@@ -168,10 +167,9 @@ function renderRound(r: Round): string {
   </div>
 
   <div class="prompt">
-    <div class="q">${isTrick ? 'Same question. Which is Colin? Or is it a trap?' : 'Which article was written by the real Colin Gomez?'}</div>
+    <div class="q">Which article was written by the real Colin Gomez?</div>
     <div class="options">
       ${r.articles.map((_, i) => `<button class="opt" data-pick="${i}">${r.articles[i].label} is Real</button>`).join('')}
-      ${isTrick ? `<button class="opt opt-trick" data-pick="-1">None of them</button>` : ''}
     </div>
   </div>
 
@@ -490,10 +488,10 @@ const HTML = `<!doctype html>
       <h3>How this works</h3>
       <ol>
         <li>Each round shows <em>three articles</em>: A, B, and C.</li>
-        <li>Rounds 1–4: <em>one is written by Colin</em>, two by the AI writer trained on Colin's voice.</li>
-        <li>Round 5: <em>a twist</em>. Read the round carefully before answering.</li>
+        <li><em>One is written by Colin Gomez</em>. The other two are written by the AI writer trained on his voice.</li>
         <li>Titles are hidden. Layout and punctuation are normalised — no visual giveaways.</li>
-        <li>Pick the article you believe is the real Colin. The correct answer is revealed after each round.</li>
+        <li>Read all three. Pick the one you believe is the real Colin.</li>
+        <li>The correct answer is revealed after each round. Score is tracked to the end.</li>
       </ol>
     </div>
     <button class="cta" onclick="startTest()">Begin Round 1</button>
@@ -587,10 +585,8 @@ document.querySelectorAll('section.round').forEach(round => {
       const reveal = round.querySelector('.reveal');
       const verdict = reveal.querySelector('.verdict');
       if (answerIdx === -1) {
-        verdict.textContent = picked === -1
-          ? '✓ Correct — this was a trap. All three are AI.'
-          : '✗ Trap round. All three were AI-generated.';
-        verdict.className = 'verdict ' + (picked === -1 ? 'win' : 'loss');
+        verdict.textContent = 'This round was a trap — all three articles were AI-generated.';
+        verdict.className = 'verdict loss';
       } else {
         verdict.textContent = correct
           ? '✓ Correct — you spotted the real Colin.'
@@ -617,19 +613,17 @@ function showFinal() {
   rounds.forEach(r => r.hidden = true);
   document.getElementById('final-score').textContent = String(score);
   const verdict = document.getElementById('final-verdict');
-  if (score === 5) verdict.textContent = 'Perfect. You have Colin\\'s voice mapped. The AI still has ground to cover.';
-  else if (score >= 4) verdict.textContent = 'Very close. AI Colin got past you at least once — it\\'s within striking distance of the real thing.';
-  else if (score >= 2) verdict.textContent = 'Mixed result. AI Colin can pass on a good day, especially in explainer and lifestyle-guide formats.';
-  else verdict.textContent = 'The AI fooled you more often than not. Voice fidelity is closer than you thought.';
+  if (score === 4) verdict.textContent = 'You aced every round with a real Colin — the fifth had no correct answer. Every article in Round 5 was AI-generated. Even trained readers rarely spot that live.';
+  else if (score === 3) verdict.textContent = 'Strong. AI Colin fooled you once. And Round 5 had no real Colin at all — every article there was AI-generated.';
+  else if (score === 2) verdict.textContent = 'AI Colin passed twice. And Round 5 had no real Colin at all — every article there was AI-generated.';
+  else if (score === 1) verdict.textContent = 'AI Colin passed you most rounds. And Round 5 had no real Colin at all — every article there was AI-generated.';
+  else verdict.textContent = 'The AI fooled you every round. Voice fidelity is closer than you thought — and Round 5 had no real Colin at all.';
 
   const breakdown = document.getElementById('breakdown');
   breakdown.innerHTML = picks.map(p => {
     const label = p.answer === -1
-      ? (p.picked === -1 ? 'Picked: "None" — correct trap detection'
-                        : \`Picked: \${['A','B','C'][p.picked]} — all three were AI\`)
-      : (p.correct
-          ? \`Picked: \${['A','B','C'][p.picked]} · Real: \${['A','B','C'][p.answer]}\`
-          : \`Picked: \${['A','B','C'][p.picked]} · Real: \${['A','B','C'][p.answer]}\`);
+      ? \`Picked: \${['A','B','C'][p.picked]} — trap round, all three were AI\`
+      : \`Picked: \${['A','B','C'][p.picked]} · Real: \${['A','B','C'][p.answer]}\`;
     return \`<div class="breakdown-row"><span class="rk">Round \${p.round}</span><span class="rv \${p.correct ? 'win' : 'loss'}">\${p.correct ? '✓' : '✗'} \${label}</span></div>\`;
   }).join('');
 
