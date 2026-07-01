@@ -52,6 +52,82 @@ function scoreColor(n: number | null | undefined): string {
   return '#f87171';
 }
 
+interface FeedbackRow {
+  id: string;
+  topic: string;
+  rating: number;
+  what_worked: string;
+  what_to_improve: string;
+  phrases_to_avoid: string;
+  phrases_to_use_more: string;
+  created_at: string;
+}
+
+function RecentFeedback() {
+  const [rows, setRows] = useState<FeedbackRow[] | null>(null);
+  const [expanded, setExpanded] = useState<string | null>(null);
+  useEffect(() => {
+    fetch('/api/recent-feedback?limit=3').then(r => r.json()).then(d => setRows(d.rows ?? [])).catch(() => setRows([]));
+  }, []);
+  return (
+    <div className="rounded-xl border border-[#2a2a2a] bg-[#0d0d0d] p-6 mb-6">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-sm font-medium text-[#aaa]">Last 3 Reviews · Feeding Next Gen</h2>
+        <span className="text-[10px] text-[#c8a84b]/70 uppercase tracking-widest">MOST CRITICAL in prompt</span>
+      </div>
+      {rows === null && <div className="text-[#666] text-sm py-4">Loading…</div>}
+      {rows && rows.length === 0 && <div className="text-[#666] text-sm py-4">No reviews yet. Submit a review via the writer to start the loop.</div>}
+      {rows && rows.length > 0 && (
+        <div className="space-y-2">
+          {rows.map(r => {
+            const isOpen = expanded === r.id;
+            const color = r.rating >= 8 ? '#4ade80' : r.rating >= 6 ? '#c8a84b' : '#f87171';
+            return (
+              <div key={r.id} className="rounded-lg border border-[#1a1a1a] bg-[#0a0a0a] overflow-hidden">
+                <button onClick={() => setExpanded(isOpen ? null : r.id)} className="w-full text-left px-4 py-3 flex items-center justify-between gap-3 hover:bg-[#111] transition">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm text-white truncate">{r.topic}</p>
+                    <p className="text-[10px] text-[#666] mt-0.5">{timeAgo(r.created_at)} · click to {isOpen ? 'collapse' : 'expand'}</p>
+                  </div>
+                  <span className="text-lg font-bold tabular-nums" style={{ color }}>{r.rating}/10</span>
+                </button>
+                {isOpen && (
+                  <div className="px-4 pb-4 pt-1 border-t border-[#1a1a1a] space-y-3 text-xs">
+                    {r.what_worked && (
+                      <div>
+                        <p className="text-[9px] uppercase tracking-widest text-[#4ade80] font-semibold mb-1">What worked</p>
+                        <p className="text-[#aaa] leading-relaxed">{r.what_worked}</p>
+                      </div>
+                    )}
+                    {r.what_to_improve && (
+                      <div>
+                        <p className="text-[9px] uppercase tracking-widest text-[#f87171] font-semibold mb-1">What to improve</p>
+                        <p className="text-[#aaa] leading-relaxed">{r.what_to_improve}</p>
+                      </div>
+                    )}
+                    {r.phrases_to_avoid && (
+                      <div>
+                        <p className="text-[9px] uppercase tracking-widest text-[#c8a84b] font-semibold mb-1">Phrases to avoid</p>
+                        <p className="text-[#aaa] leading-relaxed font-mono text-[11px]">{r.phrases_to_avoid}</p>
+                      </div>
+                    )}
+                    {r.phrases_to_use_more && (
+                      <div>
+                        <p className="text-[9px] uppercase tracking-widest text-[#4ade80] font-semibold mb-1">Phrases to use more</p>
+                        <p className="text-[#aaa] leading-relaxed font-mono text-[11px]">{r.phrases_to_use_more}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function LoopDiagram({ stats }: { stats: TrainingStats }) {
   const [feedbackCount, setFeedbackCount] = useState<number | null>(null);
   useEffect(() => {
@@ -207,6 +283,7 @@ export default function TrainingPage() {
         {data && stats && (
           <>
             <LoopDiagram stats={stats} />
+            <RecentFeedback />
 
             {/* Top row — Rolling avg + Ceiling + Gap */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
